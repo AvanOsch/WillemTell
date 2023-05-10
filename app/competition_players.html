@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-translate="title-teams">Willem Tell - Speler Teams</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./assets/css/fontawesome.min.css" />
+    
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}
+    </script>
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/jquery-3.6.4.min.js"></script>
+    <script src="./assets/js/jquery-ui.min.js"></script>
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <style>
+.teamcard {
+  border-width: 0;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+  word-wrap: break-word;
+  background-color: rgba(200, 255, 0, 0.192);
+  border: 1px solid rgba(94, 109, 39, 0.125);
+  border-radius: 0.25rem;
+}
+.card {
+  background-color: rgba(216, 255, 75, 0.082);
+}
+
+.list-item {
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+}
+
+.list-item.block .media {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.flex {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+.userinfo {
+  height: 1.25rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  font-size: 12px;
+}
+
+.list-row .list-item {
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.list-item {
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+}
+.dropzone-teams {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently */
+}
+
+.list-row .list-item > * {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+}
+
+.grid-trash {
+  width: auto;
+  background-color: #f5f2f2;
+  color: #999;
+  height: auto;
+  width: 800px;
+  border: 2px dashed #999;
+  text-align: center;
+  font-size: 80px;
+}
+.grid-trash-hover {
+  background-color: #f34541;
+  color: #fff;
+  border: 2px dashed #fff;
+}
+.drag-location {
+  border: 2px dashed #496800;
+  background: #eeff0065;
+}
+.fa-user-cog:hover {
+  color: #000;
+}
+
+.addgroup, .adddivider {
+ cursor: pointer;
+}
+.addgroup:hover {
+  color: #198754;
+}
+
+.team-handle {
+  cursor:all-scroll;
+}
+    </style>
+  </head>
+  <body style="overflow-y: auto;">
+    <div id="app" style="display: none; margin:20px;">
+          <!-- Form Name -->
+          <div class="row">
+            <div class="card col-12 p-0 me-2" style="min-width:370px">
+              <div class="card-header">
+                <h5><span data-translate="player-teams">Speler Teams</span>
+                  <span class="fs-10 float-end me-2" data-toggle="tooltip" data-placement="left" title="Voeg een Team toe" data-translate-title="add-team"><i class="addgroup fas fa-th-list"></i></span>
+                </h5>
+              </div>
+              <div class="dropzone-teams overview card-body">
+
+                <!-- TEAM A  
+                  <div class="drag-team" id="team_1">
+                    <div class="row teamcard my-2 mx-2 pt-2 pb-1">
+                      <div class="col-md-4 my-auto text-center" style="font-weight: bold; font-size: 18px;">
+                        <div class="row">
+                          <div class="col-md-1"><i class="team-handle fas fa-ellipsis-v" style="cursor:all-scroll;"></i></div>
+                          <div class="col-md-9">Team 1</div>
+                        </div>
+                      </div>
+                      <div class="col-md-8 dropzone-users">
+                        <!-- USER 1 
+                        <div data-user="1" class="drag-user list list-row">
+                          <div class="list-item border mb-1">
+                            <div class="text-muted" style="cursor:all-scroll; padding-right: 0!important"><i class="user-handle fas fa-ellipsis-v"></i></div>
+                            <div class="flex">Linod Patrick<span class="item-except text-muted text-sm userinfo">Gemiddelde: 91</span></div>
+                            <a class="remove-user text-muted" href="#"><i class="fas fa-trash"></i></a>
+                          </div>
+                        </div>
+                        <!-- USER 2 
+                        <div data-user="2" class="drag-user list list-row">
+                          <div class="list-item border mb-1">
+                            <div class="text-muted" style="cursor:all-scroll; padding-right: 0!important"><i class="user-handle fas fa-ellipsis-v"></i></div>
+                            <div class="flex">Steven Hmpire<div class="item-except text-muted text-sm userinfo">Gemiddelde: 85</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            
+                  <!-- TEAM B 
+                  <div class="drag-team">
+                    <div class="row teamcard my-2 mx-2 pt-2 pb-1">
+                      <div class="col-md-4 my-auto text-center" style="font-weight: bold; font-size: 18px;">
+                        <div class="row">
+                          <div class="col-md-1"><i class="team-handle fas fa-ellipsis-v" style="cursor:all-scroll;"></i></div>
+                          <div class="col-md-9">TEAM B</div>
+                        </div>
+                      </div>
+                      <div class="col-md-8 dropzone-users">
+                        <!-- USER 3 
+                        <div data-user="3" class="drag-user list list-row bg-white">
+                          <div class="list-item border mb-1">
+                            <div class="text-muted" style="cursor:all-scroll; padding-right: 0!important"><i class="user-handle fas fa-ellipsis-v"></i></div>
+                            <div class="flex">Verwije Romme <div class="item-except text-muted text-sm userinfo"></div>
+                            </div>
+                            <div class="no-wrap">
+                              <div class="dropdown">
+                                <a class="text-muted" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user-cog"></i></a>
+                                <ul class="dropdown-menu" data-userid="3" aria-labelledby="user3">
+                                  <a class="dropdown-item" href="#" data-abc="true">See detail</a>
+                                  <a class="dropdown-item" data-abc="true">Download</a>
+                                  <a class="dropdown-item" data-abc="true">Edit</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="remove-user dropdown-item" data-abc="true">Remove user</a>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- USER 4 
+                        <div data-user="4" class="drag-user list list-row bg-white">
+                          <div class="list-item border mb-1">
+                            <div class="text-muted" style="cursor:all-scroll; padding-right: 0!important"><i class="user-handle fas fa-ellipsis-v"></i></div>
+                            <div class="flex">Mak Lokman<div class="item-except text-muted text-sm userinfo">shift starts at 11:00</div>
+                            </div>
+                            <div class="no-wrap">
+                              <div class="dropdown">
+                                <a class="text-muted" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user-cog"></i></a>
+                                <ul class="dropdown-menu" data-userid="4" aria-labelledby="user4">
+                                  <a class="dropdown-item" href="#" data-abc="true">See detail</a>
+                                  <a class="dropdown-item" data-abc="true">Download</a>
+                                  <a class="dropdown-item" data-abc="true">Edit</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="remove-user dropdown-item" data-abc="true">Remove user</a>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+             
+                </div> <!-- DROPZONE END -->
+              </div>
+              </div>
+
+              <div class="row" style="margin-top: 24px;">
+              <div class="col-1"></div><button id="submitForm" type="submit" class="col-10 btn btn-success"><b data-translate="start">Start!</b></button><div class="col-1"></div>
+            </div>
+
+    </div>
+    <div id="copygroup" style="display:none">
+      <div class="drag-team">
+        <div class="row teamcard my-2 mx-2 pt-2 pb-1">
+          <div class="col-md-4 my-auto text-center" style="font-weight: bold; font-size: 18px;">
+            <div class="row">
+              <div class="col-md-1"><i class="team-handle fas fa-ellipsis-v"></i></div>
+              <div class="col-md-9 team_num"></div>
+              </div>
+          </div>
+          <div class="col-md-8 dropzone-users"></div>
+        </div>
+      </div>
+    </div>
+      
+    <div id="removeuser" class="modal fade" aria-hidden="true">
+      <div class="modal-dialog" style="color:#2b2b2b">
+        <div class="modal-content">
+          <div class="modal-header"><h5 data-translate="remove-player">Speler verwijderen?</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+          <div class="modal-body"><span data-translate="remove-player-pre">Weet je zeker dat je speler</span> "<span id="modal-username"></span>" <span data-translate="remove-player-pos">wil verwijderen voor vandaag?</span></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal" data-translate="remove-no">Toch niet</button>
+                <button type="button" class="conf-remove btn btn-success" data-removeuser="" data-translate="remove-yes">Verwijder speler</button>
+            </div>
+        </div>
+      </div>
+    </div>
+    <script src="app.js"></script>
+    <script>
+$(function(){ $('[data-toggle="tooltip"]').tooltip() }) // ENABLE TOOLTIP FUNCTION
+
+// SORT TEAMS
+$(".dropzone-teams").sortable({
+  axis: 'y',
+  placeholder: "drag-location",
+  handle: ".team-handle",
+  start: function (e, ui) {
+    ui.placeholder.height(ui.helper.outerHeight());
+  }
+});
+
+var team_num = 1;
+function createTeam() {
+  $('#copygroup > .drag-team').attr('id', 'team_' + team_num);
+  $('#copygroup .team_num').html('Team ' + team_num);
+  $(".dropzone-teams.overview").append($('#copygroup').html());
+  $(".dropzone-users").sortable({
+    axis: 'y',
+    connectWith: ".dropzone-users",
+    handle: ".user-handle",
+    placeholder: "drag-location",
+    start: function (e, ui) {
+      ui.placeholder.height(ui.helper.outerHeight());
+    }
+  });
+  $('.dropzone-teams').sortable({connectWith: '.drag-location'});
+  team_num++;
+}
+// BUTTON: CREATE NEW TEAM
+$(document).on('click', '.addgroup', function () {
+  createTeam();
+});
+
+// OPTION MENU: REMOVE USER FROM TEAM
+$(document).on('click', '.remove-user', function () {
+  let userid = $(this).closest('.drag-user').attr('data-user');
+  let username = $(this).attr('data-username');
+  $('#modal-username').html(username);
+  $('.conf-remove').attr('data-removeuser', userid);
+  $('#removeuser').modal('toggle');
+});
+
+// CONFIRM REMOVE USER
+$(document).on('click', '.conf-remove', function () {
+  let userid = $(this).attr('data-removeuser');
+  let user_html = $('div[data-user="'+ userid +'"]');
+  user_html.remove();
+  $('#removeuser').modal('toggle');
+});
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+        const ipc = window.require('electron').ipcRenderer;
+
+        setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+        ipc.send("getLanguage", false);
+        ipc.on("gotLanguage", (event, lang) => {
+          setTimeout(function() {
+            changeLanguage(lang);
+          }, 0);
+        });
+
+        document.querySelector("#submitForm").addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                var teams_order = $(".dropzone-teams").sortable("toArray");
+                var players_order = [];
+                teams_order.forEach(team => {
+                  players_order[players_order.length] = $("#" + team + " .dropzone-users").sortable("toArray", {attribute: 'data-user'});
+                });
+                //console.log(players_order);
+                ipc.send('goCompetition', players_order);
+            },
+            false
+        );
+
+        ipc.on('gotPlayers', function(event, data) {
+          for (let i=0; i < data.teams; i++) createTeam();
+          shuffleArray(data.players);
+          //console.log(data.players.length);
+          var playindex = Math.ceil(data.players.length / data.teams);
+          //console.log(playindex);
+          var teamcount = 0;
+          var playcount = 0;
+          var playleft = data.players.length;
+          data.players.forEach(player => {
+            var insert = '<div data-user="' + player.id + '" class="drag-user list list-row">\
+                            <div class="list-item border mb-1">\
+                              <div class="text-muted" style="cursor:all-scroll; padding-right: 0!important"><i class="user-handle fas fa-ellipsis-v"></i></div>\
+                              <div class="flex">' + player.first_name + ' ' + player.last_name;
+            if (player.average != undefined) insert += '<span class="item-except text-muted text-sm userinfo">' + getTranslation("average") + ': ' + player.averige + '</span>';
+            insert += '</div>\
+                              <a class="remove-user text-muted" href="#" data-username="' + player.first_name + ' ' + player.last_name + '"><i class="fas fa-trash"></i></a>\
+                            </div>\
+                          </div>';
+            document.querySelectorAll(".dropzone-users")[teamcount].innerHTML += insert;
+            playcount++;
+            playleft--;
+            if (playcount === playindex && teamcount + 1 < data.teams) {
+              teamcount++;
+              playindex = Math.ceil(playleft / (data.teams - teamcount));
+              playcount = 0;
+            }
+          });
+        });
+    </script>
+  </body>
+</html>

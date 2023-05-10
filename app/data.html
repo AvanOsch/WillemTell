@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-translate="title-data">Willem Tell - Gegevens</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./assets/css/fontawesome.min.css" />
+    
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}
+    </script>
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/jquery-3.6.4.min.js"></script>
+    <script src="./assets/js/jquery-ui.min.js"></script>
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
+    <script>if (window.module) module = window.module;</script>
+  </head>
+  <body style="overflow-y: auto;">
+    <div id="app" class="container" style="display: none; text-align: center;">
+      <h4 data-translate="get-data">Gegevens Ophalen</h4>
+      <!-- Text input-->
+      <div class="row">
+        <div class="form-group col-sm-12 col-md-6 col-xl-3">
+          <label class="control-label" for="date" data-translate="date">Datum</label>
+          <div class="input-group">
+            <select id="date" name="date" class="form-select"><option value="">-------------</option></select>
+            <button class="btn btn-primary" type="button" onclick="getByDate()" data-translate="ok">Ok</button>
+          </div>
+        </div>
+        <div class="form-group col-sm-12 col-md-6 col-xl-3">
+          <label class="control-label" for="competition" data-translate="competition">Competitie</label>
+          <div class="input-group">
+            <select id="competition" name="competition" class="form-select"><option value="">-------------</option></select>
+            <button class="btn btn-primary" type="button" onclick="getByCompetition()" data-translate="ok">Ok</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="divTable" style="width: 100%;border: 1px solid #FFF; margin-top:20px;">
+          <div class="divTableHeading" style="border: 1px solid #FFF;">
+              <div class="divTableHead" data-translate="name">Naam</div>
+              <div class="divTableHead" data-translate="avg">Gem.</div>
+              <div class="divTableHead" data-translate="arrows">Pijlen</div>
+              <div class="divTableHead" data-translate="score">Score</div>
+              <div class="divTableHead" data-translate="points">Punten</div>
+              <div class="divTableHead" data-translate="avg-now">Gem. Nu</div>
+              <div class="divTableHead" data-translate="improved">Verbetering</div>
+          </div>
+          <div class="divTableBody" id="players">
+          </div>
+      </div>
+      <div class="row">
+        <div class="col-2"><button class="btn btn-success btn-back" style="font-size: 20px; width: 95%; margin-top:20px" data-translate="back">Terug</button></div>
+      </div>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        const ipc = window.require('electron').ipcRenderer;
+
+        setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+        ipc.send("getLanguage", false);
+        ipc.on("gotLanguage", (event, lang) => {
+          setTimeout(function() {
+            changeLanguage(lang);
+          }, 0);
+        });
+
+        document.querySelector(".btn-back").addEventListener(
+          "click",
+          event => {
+            event.preventDefault();
+            ipc.send('gotoPage', 'app.html');
+          },
+          false
+        );
+
+        function getByDate() {
+          let date = $('#date').val();
+          if (date != "") ipc.send('getDataWhere', { 'scores.date': date });
+        }
+
+        function getByCompetition() {
+          let comp = $('#competition').val();
+          if (comp != "" && comp == 1) {
+            let date = $('#date').val();
+            if (date == "") {
+              let msg = getTranslation("errorAlsoProvideDate");
+              alert(msg);
+            } else {
+              ipc.send('getDataWhere', { 'scores_guests.date': date, 'competition': comp });
+            }
+          } else {
+            if (comp != "") ipc.send('getDataWhere', { 'scores.competition_id': comp });
+          }
+        }
+
+        function getByPlayer(pid) {
+          let date = $('#date').val();
+          let comp = $('#competition').val();
+          let where = { 'players.id': pid }
+          if (date != "") where['scores.date'] = date;
+          if (comp != "") where['scores.competition_id'] = comp;
+          ipc.send('getDataWhere', where);
+        }
+
+        ipc.send('getAllFrom', 'competition');
+        ipc.on('gotAllFrom_competition', function(event, competitions) {
+          competitions.forEach(competition => {
+            document.querySelector("#competition").innerHTML += '<option value="' + competition.id + '">' + competition.name + '</option>';
+          });
+        });
+        ipc.send('getAllDates');
+        ipc.on('gotAllDates', function(event, dates) {
+          dates.forEach(date => {
+            let datetext = new Date(date.date).toLocaleDateString("nl-NL");
+            document.querySelector("#date").innerHTML += '<option value="' + date.date + '">' + datetext + '</option>';
+          });
+        });
+
+        ipc.send('getPlayersData');
+        ipc.on('gotPlayersData', function(event, players) {
+          players.forEach(player => {
+            var insert = '<div class="divTableRow" onclick="getByPlayer(' + player.id + ')" style="cursor:pointer;' + (player.active ? '' : 'color: #A9A9A9;') + '">\
+                            <div class="divTableCell">' + player.first_name + ' ' + player.last_name + '</div>\
+                            <div class="divTableCell">' + player.average + '</div>\
+                            <div class="divTableCell">' + player.arrows + '</div>\
+                            <div class="divTableCell">' + player.score + '</div>\
+                            <div class="divTableCell">' + player.points + '</div>\
+                            <div class="divTableCell">' + player.average_now.toFixed(3) + '</div>\
+                            <div class="divTableCell">' + player.improvement.toFixed(3) + '</div>\
+                        </div>';
+            document.querySelector("#players").innerHTML += insert;
+            //console.log(player);
+          });
+        });
+    </script>
+  </body>
+</html>

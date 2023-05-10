@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-translate="title-settings">Willem Tell - Instellingen</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
+  </head>
+  <style>
+    .btn-next, .btn-back {
+        font-size: 20px;
+        margin-bottom: 5px;
+        width: 95%;
+    }
+    .row { margin-top: 10px;}
+  </style>
+  <body>
+    <div id="app" style="display: none; margin:20px;">
+      <form class="form-horizontal">
+        <fieldset>
+        <!-- Form Name -->
+        <legend>Instellingen</legend>
+
+        <div class="row">
+          <!-- Select Basic -->
+          <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
+            <label class="control-label" for="team_type" data-translate="team-type">Team Soort</label>
+            <div>
+              <select id="team_type" name="team_type" class="form-select">
+                <option value="random" data-translate="random">Random</option>
+                <option value="fixed" data-translate="fixed">Vast</option>
+              </select>
+            </div>
+          </div>
+          <!-- Select Basic -->
+          <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
+            <label class="control-label" for="teams" data-translate="teams">Teams</label>
+            <div>
+              <input id="teams" name="teams" type="number" min="1" max="5" step="1" placeholder="Teams" data-translate-placeholder="teams" class="form-control input-md" required="">
+            </div>
+          </div>
+
+          <!-- Select Basic -->
+          <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
+            <label class="control-label" for="arrows" data-translate="arrows-per-turn">Pijlen per beurt</label>
+            <div>
+              <input id="arrows" name="arrows" type="number" min="1" max="10" step="1" placeholder="Pijlen" data-translate-placeholder="arrows" class="form-control input-md" required="">
+            </div>
+          </div>
+          <!-- Text input-->
+          <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
+            <label class="control-label" for="turns" data-translate="turns-per-round">Beurten per ronde</label>
+            <div>
+              <input id="turns" name="turns" type="number" min="1" max="30" step="1" placeholder="Beurten" data-translate-placeholder="turns" class="form-control input-md" required="">
+            </div>
+          </div>
+
+          <!-- Select Basic -->
+          <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
+            <label class="control-label" for="score_min" data-translate="min-score">Minimum Score</label>
+            <div>
+              <input id="score_min" name="score_min" type="number" min="1" max="10" step="1" placeholder="1" class="form-control input-md" required="">
+            </div>
+          </div>
+          <!-- Text input-->
+          <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
+            <label class="control-label" for="score_max" data-translate="max-score">Maximum Score</label>
+            <div>
+              <input id="score_max" name="score_max" type="number" min="10" max="100" step="1" placeholder="10" class="form-control input-md" required="">
+            </div>
+          </div>
+
+          <!-- Text input-->
+          <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-3">
+            <label class="control-label" for="average_multiplier" data-translate="average-multiplier">Gemiddelde correctie</label>  
+            <div>
+              <input id="average_multiplier" name="average_multiplier" type="number" min="0.1" max="2" step="0.01" placeholder="0.9" class="form-control input-md" required="">
+            </div>
+          </div>
+          <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-3">
+            <label class="control-label" for="language" data-translate="language">Taal</label>
+            <div>
+              <select id="language" name="language" class="form-select">
+                <option value="nl-NL" data-translate="lang-dutch">Nederlands</option>
+                <option value="en-US" data-translate="lang-english">Engels</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Select Multiple -->
+            <div class="form-group col-12 col-lg-6">
+              <label class="control-label" for="hide_fields"><span data-translate="hide-fields">Velden verbergen (bij starten spel)</span> - <small data-translate="ctrl-click">(Ctrl + Klik)</small></label>
+              <div>
+                <select id="hide_fields" name="hide_fields" class="form-select" multiple="multiple">
+                  <option value="team_type" data-translate="team-type">Team Soort</option>
+                  <option value="teams" data-translate="teams">Teams</option>
+                  <option value="arrows" data-translate="arrows-per-turn">Pijlen per beurt</option>
+                  <option value="turns" data-translate="turns-per-round">Beurten per ronde</option>
+                  <option value="minmax" data-translate="min-max">Min/Max Score</option>
+                </select>
+              </div>
+            </div>
+          </div>
+  
+          <div class="row">
+        <!-- Select Basic -->
+          <div class="form-group col-md-4">
+            <label class="control-label" for="competition" data-translate="current-competition">Huidige Competitie</label>
+            <div>
+              <select id="competition" name="competition" class="form-select"></select>
+            </div>
+          </div>
+          <!-- Button -->
+          <div class="form-group col-md-4">
+            <label class="control-label" for="competition_name" data-translate="new-competition">Nieuwe Competitie</label>
+            <div>
+              <input id="competition_name" type="text" placeholder="Competitie Naam" data-translate-placeholder="competition-name" class="form-control input-md">
+            </div>
+            <div class="col-md-11">
+              <button id="new_competition" class="btn btn-primary" style="margin-top: 5px;" data-translate="add-competition">Competitie Toevoegen</button>
+            </div>
+          </div>
+          <!-- Button -->
+          <div class="form-group col-md-4">
+            <label class="control-label" for="competition_del" data-translate="del-competition">Verwijder Competitie</label>
+            <div>
+              <select id="competition_del" class="form-select"><option value="0">-------------</option></select>
+            </div>
+            <div>
+              <button id="del_competition" class="btn btn-danger" style="margin-top: 5px;" data-translate="del-competition">Verwijder Competitie</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row" style="margin-top: 24px;">
+          <div class="col-2"><button class="btn btn-success btn-back" data-translate="back">Terug</button></div><div class="col-10"><button id="submitForm" type="submit" class="btn btn-success btn-next"><b data-translate="save">Opslaan</b></button></div>
+        </div>
+      </fieldset>
+      </form>
+    </div>
+    <script src="app.js"></script>
+    <script>
+      let ipc = require('electron').ipcRenderer;
+
+      setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+      ipc.send("getLanguage", true);
+      ipc.on("gotLanguage", (event, lang) => {
+        setTimeout(function() {
+          changeLanguage(lang);
+        }, 0);
+      });
+
+      function serialize(data) {
+        let obj = {};
+        for (let [key, value] of data) {
+          if (obj[key] !== undefined) {
+            if (!Array.isArray(obj[key])) {
+              obj[key] = [obj[key]];
+            }
+            obj[key].push(value);
+          } else {
+            obj[key] = value;
+          }
+        }
+        return obj;
+      }
+
+      document.querySelector(".btn-back").addEventListener(
+        "click",
+        event => {
+          event.preventDefault();
+          ipc.send('gotoPage', 'app.html');
+        },
+        false
+      );
+
+      const form = document.querySelector("form");
+      document.querySelector("#submitForm").addEventListener(
+          "click",
+          event => {
+              let formData = new FormData(form);
+              event.preventDefault();
+              if (!form.checkValidity()) {
+                  form.reportValidity();
+              } else {
+                  ipc.send('submitSettings', serialize(formData));
+              }
+          },
+          false
+      );
+      document.querySelector("#new_competition").addEventListener(
+          "click",
+          event => {
+              event.preventDefault();
+              ipc.send('addCompetition', document.querySelector("#competition_name").value);
+          },
+          false
+      );
+      document.querySelector("#del_competition").addEventListener(
+          "click",
+          event => {
+              event.preventDefault();
+              ipc.send('delCompetition', document.querySelector("#competition_del").value);
+          },
+          false
+      );
+      ipc.send('getAllFrom', 'competition');
+      ipc.on('gotAllFrom_competition', function(event, competitions) {
+        competitions.forEach(competition => {
+          document.querySelector("#competition").innerHTML += '<option value="' + competition.id + '">' + competition.name + '</option>';
+          // Need to use "setAttribute" to find options later (for disable)
+          let option = document.createElement('option');
+          option.setAttribute('value', competition.id);
+          option.text = competition.name;
+          if (competition.id <= 2) {
+            //console.log('DISABLE!!!');
+            option.setAttribute('disabled', '');
+          }
+          document.querySelector("#competition_del").appendChild(option);
+          //console.log(competition);
+        });
+      });
+      var disable_setting;
+      ipc.send('getSettings', ['language', 'team_type', 'teams', 'arrows', 'turns', 'score_min', 'score_max', 'average_multiplier', 'competition', 'hide_fields']);
+      ipc.on('gotSettings', function(event, settings) {
+        settings.forEach(setting => {
+          if (setting.setting === 'hide_fields') {
+            var options = Array.from(document.querySelectorAll('#' + setting.setting + ' option'));
+            if (setting.value != '') {
+              setting.value.split(',').forEach(function(v) {
+                options.find(c => c.value == v).selected = true;
+              });
+            }
+          } else {
+            document.querySelector("#" + setting.setting).value = setting.value;
+            if (setting.setting === 'competition') disable_setting = setting.value;
+          }
+        });
+        //console.log(settings);
+      });
+      // Wait a second so all the data is loaded.
+      setTimeout(function() {
+        if (disable_setting) document.querySelector('#competition_del option[value="' + disable_setting + '"]').setAttribute('disabled', '');
+      }, 1000);
+  </script>
+</body>
+</html>

@@ -7,18 +7,105 @@ body {
 }
 
 body {
-  display: flex;
+  position: relative;
+  color: white;
+  height: 100vh;
+  background: linear-gradient(
+    200.96deg,
+    #fedc2a -29.09%,
+    #5f7400 51.77%,
+    #284600 129.35%
+  );
+  font-family: sans-serif;
+  overflow-y: hidden;
   justify-content: center;
   align-items: center;
-  font-family: sans-serif;
-  color: #525252;
+}
+
+button {
+  background-color: #284600;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  appearance: none;
+  font-size: 1.3rem;
+  box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
+    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+  transition: all ease-in 0.1s;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+button:hover {
+  transform: scale(1.05);
+  opacity: 1;
+}
+button.accordion-button:hover {
+  transform: none;
+}
+
+li {
+  list-style: none;
 }
 
 a {
   text-decoration: none;
-  color: #cb3837;
+  height: fit-content;
+  width: fit-content;
+  margin: 10px;
 }
 
-.container {
-  text-align: center;
+a:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.divTable{
+	display: table;
+	width: 100%;
+}
+.divTableRow {
+	display: table-row;
+}
+.divTableCell {
+	border: 1px solid #999999;
+	display: table-cell;
+	padding: 3px 10px;
+}
+.divTableHead {
+	border: 1px solid #ffffff;
+	display: table-cell;
+	padding: 3px 10px;
+}
+.divTableHeading {
+	display: table-header-group;
+	font-weight: bold;
+}
+.divTableFoot {
+	display: table-footer-group;
+	font-weight: bold;
+}
+.divTableBody {
+	display: table-row-group;
+}
+
+.accordion {
+  --bs-accordion-color: #ffffff;
+  --bs-accordion-bg: #859a00;
+  --bs-accordion-border-color: #e4e6de;
+  --bs-accordion-btn-color: #eeffd3;
+  --bs-accordion-btn-bg: #859a00;
+  --bs-accordion-btn-focus-border-color: #dbfe86;
+  --bs-accordion-btn-active-icon:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgb(172 253 13 / 25%);
+  --bs-accordion-active-color: #ffffff;
+  --bs-accordion-active-bg: #395600;
 }

@@ -2,10 +2,53 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Electron Boilerplate</title>
+    <title data-translate="title">Willem Tell</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
   </head>
-  <body>
+  <body style="display:flex;">
     <div id="app" class="container" style="display: none;">
+      <div class="content">
+        <a href="competition_setup.html">
+          <button type="button">
+            <img width="200px" alt="Competitie" src=./assets/target.png /><br/>
+            <span data-translate="competition">Competitie</span>
+          </button>
+        </a>
+        <a href="data.html">
+          <button type="button">
+            <img width="200px" alt="Gegevens" src=./assets/data.png /><br/>
+            <span data-translate="data">Gegevens</span>
+          </button>
+        </a>
+        <a href="members.html">
+          <button type="button">
+            <img width="200px" alt="Leden" src=./assets/people.png /><br/>
+            <span data-translate="members">Leden</span>
+          </button>
+        </a>
+      </div>
+      <div class="content">
+        <a href="guests_setup.html">
+          <button type="button">
+            <img width="200px" alt="Gasten" src=./assets/guests.png /><br/>
+            <span data-translate="guests">Gasten</span>
+          </button>
+        </a>
+        <a href="settings.html">
+          <button type="button">
+            <img width="200px" alt="Instellingen" src=./assets/settings.png /><br/>
+            <span data-translate="settings">Instellingen</span>
+          </button>
+        </a>
+      </div>
+<!--//
       <h1 id="greet"></h1>
       <p>
         Welcome to
@@ -18,7 +61,17 @@
       <p>Environment: <strong id="env"></strong></p>
       <p>Electron version: <strong id="electron-version"></strong></p>
     </div>
+//-->
 
     <script src="app.js"></script>
+    <script>
+      const ipc = window.require('electron').ipcRenderer;
+
+      setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+      ipc.send("getLanguage", false);
+      ipc.on("gotLanguage", (event, lang) => {
+        changeLanguage(lang);
+      });
+    </script>
   </body>
 </html>

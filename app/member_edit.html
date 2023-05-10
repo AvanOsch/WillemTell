@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-translate="title-member-edit">Willem Tell - Gegevens bewerken</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
+  </head>
+  <body>
+    <div id="app" style="display: none; margin:20px;">
+        <form class="form-horizontal">
+            <fieldset>
+                <!-- Form Name -->
+                <legend>Schutter gegevens <button id="delete" class="btn btn-danger" style="float:right"><b>X</b></button></legend>
+
+                <div class="row">
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="first_name" data-translate="firstname">Voornaam</label>
+                        <div class="col-md-11">
+                        <input id="player_id" name="player_id" type="hidden" value="">
+                        <input id="first_name" name="first_name" type="text" placeholder="Voornaam" data-translate-placeholder="firstname" class="form-control input-md" required="">
+                        </div>
+                    </div>
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="last_name" data-translate="lastname">Achternaam</label>  
+                        <div class="col-md-11">
+                            <input id="last_name" name="last_name" type="text" placeholder="Achternaam" data-translate-placeholder="lastname" class="form-control input-md" required="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="address" data-translate="address">Adres</label>  
+                        <div class="col-md-11">
+                            <input id="address" name="address" type="text" placeholder="Straat &amp; huisnummer" data-translate-placeholder="street-number" class="form-control input-md">
+                        </div>
+                    </div>
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="postal" data-translate="postal">Postcode</label>  
+                        <div class="col-md-11">
+                            <input id="postal" name="postal" type="text" placeholder="Postcode" data-translate-placeholder="postal" class="form-control input-md">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="city" data-translate="city">Plaats</label>  
+                        <div class="col-md-11">
+                            <input id="city" name="city" type="text" placeholder="Plaatsnaam" data-translate-placeholder="city-name" class="form-control input-md">
+                        </div>
+                    </div>
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="email" data-translate="email">E-Mail</label>  
+                        <div class="col-md-11">
+                            <input id="email" name="email" type="email" placeholder="E-Mail adres" data-translate-placeholder="email-address" class="form-control input-md">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="mobile" data-translate="mobile">Mobiel</label>  
+                        <div class="col-md-11">
+                            <input id="mobile" name="mobile" type="tel" placeholder="Mobiele Telefoon" data-translate-placeholder="mobile-phone" pattern="[0-9]{2}-[0-9]{8}" title="Graag invullen als 06-12345678" data-translate-title="mobile-pattern" class="form-control input-md">
+                        </div>
+                    </div>
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="phone" data-translate="phone">Telefoon</label>  
+                        <div class="col-md-11">
+                            <input id="phone" name="phone" type="tel" placeholder="Vaste Telefoon" data-translate-placeholder="phone-landline" pattern="[0-9]{4}-[0-9]{6}" title="Graag invullen als 0123-456789" data-translate-title="phone-pattern" class="form-control input-md">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="birthday" data-translate="birthday">Geboorte datum</label>  
+                        <div class="col-md-11">
+                            <input id="birthday" name="birthday" type="date" placeholder="Geboorte datum" data-translate-placeholder="birthday" class="form-control input-md">
+                        </div>
+                    </div>
+                    <!-- Text input-->
+                    <div class="form-group col-md-6">
+                        <label class="col-md-11 control-label" for="joined" data-translate="joined">Lid Sinds</label>  
+                        <div class="col-md-11">
+                            <input id="joined" name="joined" type="number" min="1920" max="2099" step="1" placeholder="Lid Sinds" data-translate-placeholder="joined" class="form-control input-md">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Number Input -->
+                    <div class="form-group col-md-3">
+                        <label class="col-md-11 control-label" for="bow_number" data-translate="bow-number">Boog Nummer</label>
+                        <div class="col-md-11">
+                            <input id="bow_number" name="bow_number" type="number" min="1" max="50" step="1" placeholder="Boog Nummer" data-translate-placeholder="bow-number" class="form-control input-md">
+                        </div>
+                    </div>
+                    <!-- Select Basic -->
+                    <div class="form-group col-md-3">
+                        <label class="col-md-11 control-label" for="function" data-translate="function">Functie</label>
+                        <div class="col-md-11">
+                            <select id="function" name="function" class="form-select">
+                                <option value="none">------</option>
+                                <option value="chair" data-translate="function-chair">Voorzitter</option>
+                                <option value="treasurer" data-translate="function-treasurer">Penningmeester</option>
+                                <option value="secretary" data-translate="function-secretary">Secretaris</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Number Input -->
+                    <div class="form-group col-md-2">
+                        <label class="col-md-11 control-label" for="average" data-translate="average">Gemiddelde</label>
+                        <div class="col-md-11">
+                            <input id="average" name="average" type="number" min="0" max="100" step="0.001" placeholder="gem." data-translate-placeholder="avg" class="form-control input-md">
+                        </div>
+                    </div>
+                    <!-- Multiple Radios (inline) -->
+                    <div class="form-group col-md-2">
+                        <label class="col-md-11 control-label" for="has_key" data-translate="has-key">Heeft Sleutel</label>
+                        <div class="col-md-11"> 
+                            <label class="radio-inline" for="has_key-0">
+                                <input type="radio" name="has_key" id="has_key-0" value="0" checked="checked">
+                                <span data-translate="no">Nee</span>
+                            </label>
+                            <label class="radio-inline" for="has_key-1">
+                                <input type="radio" name="has_key" id="has_key-1" value="1">
+                                <span data-translate="yes">Ja</span>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Multiple Radios (inline) -->
+                    <div class="form-group col-md-2">
+                        <label class="col-md-11 control-label" for="active">Actief</label>
+                        <div class="col-md-11"> 
+                            <label class="radio-inline" for="active-0">
+                                <input type="radio" name="active" id="active-0" value="0">
+                                <span data-translate="no">Nee</span>
+                            </label>
+                            <label class="radio-inline" for="active-1">
+                                <input type="radio" name="active" id="active-1" value="1" checked="checked">
+                                <span data-translate="yes">Ja</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 24px;">
+                    <div class="col-1"></div><div class="col-10"><button id="submitForm" type="submit" class="btn btn-success" style="width:100%"><b data-translate="save">Opslaan</b></button></div><div class="col-1"></div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        const ipc = window.require('electron').ipcRenderer;
+
+        setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+        ipc.send("getLanguage", false);
+        ipc.on("gotLanguage", (event, lang) => {
+          setTimeout(function() {
+            changeLanguage(lang);
+          }, 0);
+        });
+
+        const form = document.querySelector("form");
+        document.querySelector("#submitForm").addEventListener(
+            "click",
+            event => {
+                let formData = new FormData(form);
+                event.preventDefault();
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                } else {
+                    ipc.send('submitPlayer', Object.fromEntries(formData.entries()));
+                }
+            },
+            false
+        );
+        document.querySelector("#delete").addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                ipc.send('deletePlayer', document.querySelector("#player_id").value);
+            },
+            false
+        );
+
+        const isNumericInput = (event) => {
+            const key = event.keyCode;
+            return ((key >= 48 && key <= 57) || // Allow number line
+                (key >= 96 && key <= 105) // Allow number pad
+            );
+        };
+        const isModifierKey = (event) => {
+            const key = event.keyCode;
+            return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+                (key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
+                (key > 36 && key < 41) || // Allow left, up, right, down
+                (
+                    // Allow Ctrl/Command + A,C,V,X,Z
+                    (event.ctrlKey === true || event.metaKey === true) &&
+                    (key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
+                )
+        };
+        const enforceFormat = (event) => {
+            // Input must be of a valid number format or a modifier key, and not longer than ten digits
+            if(!isNumericInput(event) && !isModifierKey(event)){
+                event.preventDefault();
+            }
+        };
+        const formatToPhone = (event) => {
+            if(isModifierKey(event)) {return;}
+
+            const input = event.target.value.replace(/\D/g,'').substring(0,10); // First ten digits of input only
+            const areaCode = input.substring(0,4);
+            const last = input.substring(4,10);
+
+            if (input.length > 4) { event.target.value = `${areaCode}-${last}`; }
+            else if (input.length > 0) { event.target.value = `${areaCode}`; }
+        };
+        const formatToMobile = (event) => {
+            if(isModifierKey(event)) {return;}
+
+            const input = event.target.value.replace(/\D/g,'').substring(0,10); // First ten digits of input only
+            const areaCode = input.substring(0,2);
+            const last = input.substring(2,10);
+
+            if (input.length > 2) { event.target.value = `${areaCode}-${last}`; }
+            else if (input.length > 0) { event.target.value = `${areaCode}`; }
+        };
+
+        const inputPhone = document.getElementById('phone');
+        inputPhone.addEventListener('keydown',enforceFormat);
+        inputPhone.addEventListener('keyup',formatToPhone);
+        const inputMobile = document.getElementById('mobile');
+        inputMobile.addEventListener('keydown',enforceFormat);
+        inputMobile.addEventListener('keyup',formatToMobile);
+
+        ipc.on('gotPlayer', function(event, player) {
+            document.querySelector("#player_id").value = player.id;
+            document.querySelector("#first_name").value = player.first_name;
+            document.querySelector("#last_name").value = player.last_name;
+            document.querySelector("#address").value = player.address;
+            document.querySelector("#postal").value = player.postal;
+            document.querySelector("#city").value = player.city;
+            document.querySelector("#email").value = player.email;
+            document.querySelector("#mobile").value = player.mobile;
+            document.querySelector("#phone").value = player.phone;
+            document.querySelector("#birthday").value = player.birthday;
+            document.querySelector("#joined").value = player.joined;
+            document.querySelector("#bow_number").value = player.bow_number;
+            document.querySelector("#function").value = player.function;
+            document.querySelector("#average").value = player.average;
+            document.querySelector("#has_key-0").checked = (player.has_key < 1);
+            document.querySelector("#has_key-1").checked = (player.has_key > 0);
+            document.querySelector("#active-0").checked = (player.active < 1);
+            document.querySelector("#active-1").checked = (player.active > 0);
+
+            //console.log(player);
+        });
+    </script>
+  </body>
+</html>

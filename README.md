@@ -1,6 +1,6 @@
-# electron-boilerplate
+# Willem Tell
 
-**This repository is no longer in active maintenance.**
+**Cloned from electron-boilerplate**
 
 ---
 

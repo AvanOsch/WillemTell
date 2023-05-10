@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-translate="title-competition">Willem Tell - Competitie</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
+  </head>
+  <style>
+    .btn-next, .btn-back {
+        font-size: 20px;
+        margin-bottom: 5px;
+        width: 95%;
+    }
+  </style>
+  <body style="overflow-y: auto;">
+    <div id="app" style="display: none; margin:20px;">
+        <form class="form-horizontal">
+            <fieldset>
+            
+            <!-- Form Name -->
+            <legend data-translate="competition-setup">Competitie schieten</legend>
+            
+            <!-- Text input-->
+            <div class="row">
+            <div class="form-group col-sm-12 col-md-4 col-xl-2">
+              <label class="control-label" for="date" data-translate="date">Datum</label>  
+              <div class="">
+                <input id="date" name="date" type="date" class="form-control input-md" required="">
+              </div>
+            </div>
+            
+            <!-- Multiple Checkboxes -->
+            <div class="form-group col-sm-6 col-md-4 col-xl-2">
+                <label class="control-label" for="competition"><span data-translate="competition">Competitie</span>: <span id="competition_name"></span></label>
+                <div class="">
+                    <label class="radio-inline" for="competition-1">
+                        <input type="radio" name="competition" id="competition-1" value="3" checked="checked">
+                        <span data-translate="yes">Ja</span>
+                    </label> &nbsp;
+                    <label class="radio-inline" for="competition-0">
+                        <input type="radio" name="competition" id="competition-0" value="0">
+                        <span data-translate="no">Nee</span>
+                    </label> &nbsp;
+                    <label class="radio-inline" for="competition-2">
+                      <input type="radio" name="competition" id="competition-2" value="2">
+                      👑
+                  </label>
+              </div>
+            </div>
+              
+              <!-- Multiple Checkboxes -->
+              <div class="form-group col-sm-6 col-md-4 col-xl-2">
+                <label class="control-label" for="count_average" data-translate="count-average">Gemiddelde tellen</label>
+                <div class="">
+                    <label class="radio-inline" for="count_average-1">
+                        <input type="radio" name="count_average" id="count_average-1" value="1" checked="checked">
+                        <span data-translate="yes">Ja</span>
+                    </label> &nbsp;
+                    <label class="radio-inline" for="count_average-0">
+                        <input type="radio" name="count_average" id="count_average-0" value="0">
+                        <span data-translate="no">Nee</span>
+                    </label>
+                </div>
+              </div>
+              
+            <!-- Text input-->
+            <div class="form-group col-sm-6 col-md-3 col-xl-1 teams" style="display:none">
+              <label class="control-label" for="teams" data-translate="teams">Teams</label>  
+              <div class="">
+                <input id="teams" name="teams" type="number" min="1" max="5" step="1" placeholder="Teams" data-translate-placeholder="teams" class="form-control input-md" required="">
+              </div>
+            </div>
+            
+            <!-- Multiple Radios (inline) -->
+            <div class="form-group col-sm-6 col-md-3 col-xl-2 team_type" style="display:none">
+              <label class="control-label" for="team_type" data-translate="team-type">Team Soort</label>
+              <div class="">
+                <select id="team_type" name="team_type" class="form-select">
+                  <option value="random" data-translate="random">Random</option>
+                  <option value="fixed" data-translate="fixed">Vast</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Text input-->
+            <div class="form-group col-sm-6 col-md-3 col-xl-1 arrows" style="display:none">
+              <label class="control-label" for="arrows" data-translate="arrows-turn">Pijlen/beurt</label>
+              <div class="">
+                <input id="arrows" name="arrows" type="number" min="1" max="10" step="1" placeholder="Pijlen" data-translate-placeholder="arrows" class="form-control input-md" required="">
+              </div>
+            </div>
+            
+            <!-- Text input-->
+            <div class="form-group col-sm-6 col-md-3 col-xl-2 turns" style="display:none">
+              <label class="control-label" for="turns" data-translate="turns-round">Beurten/ronde</label>
+              <div class="">
+                <input id="turns" name="turns" type="number" min="1" max="30" step="1" placeholder="Beurten" data-translate-placeholder="turns" class="form-control input-md" required="">
+              </div>
+            </div>
+            
+            <!-- Text input-->
+            <div class="form-group col-sm-6 col-md-3 col-xl-1 minmax" style="display:none">
+              <label class="control-label" for="score_min" data-translate="min-score">Min Score</label>
+              <div class="">
+                <input id="score_min" name="score_min" type="number" min="1" max="10" step="1" placeholder="1" class="form-control input-md" required="">
+              </div>
+            </div>
+            
+            <!-- Text input-->
+            <div class="form-group col-sm-6 col-md-3 col-xl-1 minmax" style="display:none">
+              <label class="control-label" for="score_max" data-translate="max-score">Max Score</label>
+              <div class="">
+                <input id="score_max" name="score_max" type="number" min="10" max="100" step="1" placeholder="10" class="form-control input-md" required="">
+              </div>
+            </div>
+            </div>
+            <div class="row" style="margin-top:20px;">
+                <label class="control-label" for="players" data-translate="players-today">Wie spelen er vandaag mee?</label>
+                <div id="players"></div>
+            </div>
+            <div class="row" style="margin-top: 24px;">
+                <div class="col-2"><button class="btn btn-success btn-back" data-translate="back">Terug</button></div><div class="col-10"><button id="submitForm" type="submit" class="btn btn-success btn-next"><b data-translate="next">Volgende</b></button></div>
+            </div>
+
+            </fieldset>
+            </form>
+    </div>
+    <script src="app.js"></script>
+    <script>
+      const ipc = window.require('electron').ipcRenderer;
+
+      setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+      ipc.send("getLanguage", false);
+      ipc.on("gotLanguage", (event, lang) => {
+        setTimeout(function() {
+          changeLanguage(lang);
+        }, 0);
+      });
+
+      document.getElementById('date').valueAsDate = new Date();
+
+      function serialize(data) {
+        let obj = {};
+        for (let [key, value] of data) {
+          if (obj[key] !== undefined) {
+            if (!Array.isArray(obj[key])) {
+              obj[key] = [obj[key]];
+            }
+            obj[key].push(value);
+          } else {
+            obj[key] = value;
+          }
+        }
+        return obj;
+      }
+
+      document.querySelector(".btn-back").addEventListener(
+        "click",
+        event => {
+          event.preventDefault();
+          ipc.send('gotoPage', 'app.html');
+        },
+        false
+      );
+
+      const form = document.querySelector("form");
+      document.querySelector("#submitForm").addEventListener(
+        "click",
+        event => {
+          event.preventDefault();
+          if (!form.checkValidity()) {
+            form.reportValidity();
+          } else {
+            let formData = new FormData(form);
+            //console.log(serialize(formData));
+            ipc.send('setCompetition', serialize(formData));
+          }
+        },
+        false
+      );
+
+      ipc.send('getAllFrom', 'settings');
+      ipc.on('gotAllFrom_settings', function(event, settings) {
+        sets = ['team_type','teams','arrows','turns','score_min', 'score_max'];
+        settings.forEach(setting => {
+          if (sets.indexOf(setting.setting) != -1) {
+            //console.log(setting.setting + ' - ' + setting.value);
+            document.querySelector("#" + setting.setting).value = setting.value;
+          }
+          if (setting.setting === 'hide_fields') {
+            var hidden = ['team_type', 'teams', 'arrows', 'turns', 'minmax'];
+            var hide = setting.value;
+            if (hide.indexOf(',') != -1) hide = hide.split(',');
+            hidden.forEach(function(v) {
+              //console.log('Hide: ' + v);
+              var x = document.querySelectorAll("." + v);
+              if (hide.indexOf(v) == -1) for (i = 0; i < x.length; i++) x[i].style.display = "block";
+            });
+          }
+          if (setting.setting == 'competition') {
+            ipc.send('getCompetition', setting.value);
+            ipc.on('gotCompetition', function(event, competition) {
+              document.querySelector("#competition_name").innerHTML = competition[0].name;
+            });
+          }
+        });
+      });
+
+      ipc.send('getActivePlayers');
+      ipc.on('gotActivePlayers', function(event, players) {
+        players.forEach(player => {
+          var insert = '<div class="btn-group-toggle" data-toggle="buttons" style="float:left; margin-right:10px; margin-bottom:10px;">\
+                          <label class="btn btn-success active">\
+                          <input type="checkbox" id="player_' + player.id + '" name="players" value="' + player.id + '" checked autocomplete="off">\
+                          ' + player.first_name + ' ' + player.last_name + '<br/>\
+                          <small>(' + player.average + ')</small></label>\
+                        </div>';
+          document.querySelector("#players").innerHTML += insert;
+          //console.log(player);
+        });
+      });
+    </script>
+  </body>
+</html>

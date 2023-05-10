@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-translate="title-data">Willem Tell - Gegevens</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./assets/css/fontawesome.min.css" />
+    
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}
+    </script>
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/jquery-3.6.4.min.js"></script>
+    <script src="./assets/js/jquery-ui.min.js"></script>
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <style>
+      .container {
+        padding-top: 10px;
+      }
+      .score-table {
+          /*border: 2px solid white;*/
+          margin-top: 10px;
+      }
+      .score-table th {
+          border: 2px solid white;
+          padding: 6px;
+      }
+      .score-table td {
+          border: 1px solid rgba(255, 255, 255, 0.50);
+          padding: 2px 6px;
+      }
+  </style>
+</head>
+  <body style="overflow-y: auto;">
+    <div id="app" class="container" style="display: none;">
+    </div>
+    <script src="app.js"></script>
+    <script>
+      const ipc = window.require('electron').ipcRenderer;
+
+      setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+      ipc.send("getLanguage", false);
+      ipc.on("gotLanguage", (event, lang) => {
+        setTimeout(function() {
+          changeLanguage(lang);
+        }, 0);
+      });
+
+      ipc.on('gotData', function(event, data) {
+        //console.log(data);
+        if (data[0].length <= 0) {
+          $('#app').append('<h1>' + getTranslation("no-data") + '</h1>');
+          if (data[1]['players.id'] != undefined) $('#app').append(getTranslation("player-id") + ': ' + data[1]['players.id'] + '<br>');
+          if (data[1]['scores.date'] != undefined) $('#app').append(getTranslation("date") + ': ' + data[1]['scores.date'] + '<br>');
+          if (data[1]['scores.competition_id'] != undefined) $('#app').append(getTranslation("competition-id") + ': ' + data[1]['scores.competition_id'] + '<br>');
+        } else {
+          // We don't need player column when requesting single player's data
+          var showname = (data[1]['players.id'] == undefined);
+          var pname = "";
+          // Table, until player changes.
+          var scores = '<table class="score-table"><tr>';
+          if (showname) scores += '<th>' + getTranslation("name") + '</th>';
+          scores += '<th>' + getTranslation("date") + '</th><th>' + getTranslation("competition") + '</th>';
+          for (let i = 1; i <= 10; i++) scores += '<th style="text-align:center; min-width: 45px;">' + i + '</th>';
+          scores += '<th>' + getTranslation("total") + '</th><th>' + getTranslation("arrows") + '</th><th>' + getTranslation("points") + '</th></tr><tr>';
+          var arrows = [];
+          var total = [];
+          var cur_team = 0;
+          var cur_round = 0;
+          data[0].forEach((row, index) => {
+            let namechange = false;
+            if (pname == "" || pname != row.first_name + ' ' + row.last_name) {
+              namechange = true;
+              pname = row.first_name + ' ' + row.last_name;
+              if (!showname) $('#app').append('<h4>' + pname + '</h4>');
+            }
+            if (cur_team == 0) cur_team = row.team_id;
+            if (showname && cur_team != row.team_id) {
+              cur_team = row.team_id;
+              scores += '</tr><tr><td colspan="' + (showname ? '15' : '14') + '" style="border:0;">&nbsp;</td></tr><tr>';
+              if (showname) scores += '<th>' + getTranslation("name") + '</th>';
+              scores += '<th>' + getTranslation("date") + '</th><th>' + getTranslation("competition") + '</th>';
+              for (let i = 1; i <= 10; i++) scores += '<th style="text-align:center; min-width: 45px;">' + i + '</th>';
+              scores += '<th>' + getTranslation("total") + '</th><th>' + getTranslation("arrows") + '</th><th>' + getTranslation("points") + '</th></tr><tr>';
+            }
+            if (row.part != 1 && !namechange) {
+              if (showname) scores += '<td colspan="3"></td>';
+              else scores += '<td colspan="2"></td>';
+            } else {
+              if (showname) scores += '<td>' + pname + '</td>';
+              scores += '<td>' + row.date + '</td><td>' + (data[1].competition == undefined ? row.name : data[1].competition.name) + '</td>';
+            }
+            if (row.player_id == undefined && row.guest_id != undefined) row.player_id = row.guest_id;
+            if (arrows[row.player_id] == undefined) arrows[row.player_id] = 0;
+            if (total[row.player_id] == undefined) total[row.player_id] = 0;
+            for (let i = 1; i <= 10; i++) {
+              if (row['arrow_' + i] !== '') {
+                arrows[row.player_id]++;
+                total[row.player_id] += row['arrow_' + i];
+              }
+              scores += '<td style="text-align:center; min-width: 45px;">' + row['arrow_' + i] + '</td>';
+            }
+            if (data[0][index + 1] != undefined && data[0][index + 1].part > 1) {
+              scores += '<td></td><td></td><td></td></tr>';
+            } else {
+              scores += '<td>' + total[row.player_id] + '</td><td>' + arrows[row.player_id] + '</td><td>' + row.points + '</td></tr>';
+              total[row.player_id] = 0;
+            }
+          });
+          scores += '</table>';
+          $(scores).appendTo('#app');
+          // Table, until round changes.
+        }
+      });
+    </script>
+</body>
+</html>

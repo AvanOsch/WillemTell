@@ -1,12 +1,22 @@
+import { BrowserWindow } from "electron";
+import path from "path";
+
 export default {
-  label: "Edit",
+  label: "edit",
   submenu: [
-    { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-    { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-    { type: "separator" },
-    { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-    { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-    { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-    { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+    {
+      label: "members",
+      accelerator: "CmdOrCtrl+L",
+      click: () => {
+        BrowserWindow.getFocusedWindow().loadFile(path.join(__dirname, "members.html"));
+      }
+    },
+    {
+      label: "settings",
+      accelerator: "CmdOrCtrl+L",
+      click: () => {
+        BrowserWindow.getFocusedWindow().loadFile(path.join(__dirname, "settings.html"));
+      }
+    }
   ]
 };

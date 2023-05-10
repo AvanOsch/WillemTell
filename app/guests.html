@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-translate="title-guests">Willem Tell - Gasten Schieten</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./assets/css/fontawesome.min.css" />
+    
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}
+    </script>
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/jquery-3.6.4.min.js"></script>
+    <script src="./assets/js/jquery-ui.min.js"></script>
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <style>
+        .btn-points, .btn-save, .btn-back {
+            font-size: 30px;
+            margin-bottom: 5px;
+            width: 95%;
+        }
+        .btn-save, .btn-back {
+            margin-top: 25px;
+        }
+        .selected-input, .form-control:focus {
+            color: #2b2b2b;
+            background-color: #eeffbf;
+            border-color: #6c9b00;
+            outline: 0;
+            box-shadow: 0 0 0 .25rem rgba(149, 253, 13, 0.50);
+        }
+        .score-table {
+            border-color:transparent;
+        }
+        .score-table td {
+            padding: 0.5px;
+        }
+        .player-name {
+            display:flex;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: var(--bs-body-color);
+            background-color: var(--bs-tertiary-bg);
+            border: var(--bs-border-width) solid var(--bs-border-color);
+            border-radius: 0.35rem 0 0 0.35rem;
+        }
+        .team_average {
+            font-size: 0.7rem;
+        }
+        .player_average {
+            font-size: 0.7rem;
+        }
+    </style>
+  </head>
+  <body style="overflow-y: auto;">
+    <div id="app" style="display: none; margin:20px;">
+        <h5 id="page-header"><span id="competition" data-id=""></span> &nbsp; - &nbsp; <span data-translate="date">Datum</span>: <span id="date" data-date=""></span><div id="arrows" style="float:right; font-size:16px;"></div><span id="count_average" data-id="" style="display:none"></span></h5>
+        <div class="row">
+            <div class="accordion col-10" id="roundsAccordion"></div>
+            <div class="col-2" id="points-buttons">
+                <button class="btn btn-success btn-points">0</button>
+                <button class="btn btn-success btn-save" data-translate="save">Opslaan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="copygroup" style="display:none">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="round_x">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_x" aria-expanded="false" aria-controls="collapse_x">
+                Ronde #x
+              </button>
+            </h2>
+            <div id="collapse_x" class="accordion-collapse collapse" aria-labelledby="round_x" data-bs-parent="#roundsAccordion">
+              <div class="accordion-body">
+
+              </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        const ipc = window.require('electron').ipcRenderer;
+
+        setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+        ipc.send("getLanguage", false);
+        ipc.on("gotLanguage", (event, lang) => {
+          setTimeout(function() {
+            changeLanguage(lang);
+            finished = getTranslation("finished");
+          }, 0);
+        });
+
+        function getDate(dateString) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            var parts = dateString.split('-');
+            var mydate = new Date(parts[0], parts[1] - 1, parts[2]);
+
+            return mydate.toLocaleDateString('nl-NL', options);
+        }
+/*
+FOREACH TEAMS => Round (1, 2)
+FOREACH TEAMS => Round (1-2, 1-3, 2-3)
+FOREACH TEAMS => Round (1-2-3, 1-2-4, 2-3-4, 1,3,4)
+FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
+*/
+        var current_input;
+        function selectInput(el) {
+            $('.form-control').removeClass('selected-input');
+            current_input = el;
+            current_input.addClass('selected-input');
+            el.focus();
+        }
+        var minpoints = 5;
+        var maxpoints = 10;
+        var total_arrows = 0;
+        var turn_arrows = 0;
+        var arrow_pos = 1;
+        function goToNextInput() {
+            var rows = current_input.closest('.accordion-body').find('tr[data-id]');
+            var current_row = rows.index(current_input.parents('tbody').find('tr[data-id]'));
+            var current_id = parseInt(current_input.data('col'));
+            //var arrow_pos = current_id - (current_id % turn_arrows) + 1;
+            if (current_id % turn_arrows === 0) {
+                if ((current_row + 1) < rows.length) {
+                    current_row++;
+                    current_id = arrow_pos;
+                } else {
+                    current_id++;
+                    arrow_pos = current_id;
+                    current_row = 0;
+                }
+            } else {
+                if (current_id == total_arrows) {
+                    current_row++;
+                    current_id = arrow_pos;
+                } else {
+                    current_id++;
+                }
+            }
+            // Check if we've finished this round
+            if (current_id > total_arrows) {
+              arrow_pos = 1;
+            }
+            // Check if all fields have been filled
+            if (current_input.closest('.accordion-body').find('input').not(':disabled').filter(function() { return $(this).val() == ""; }).length < 1) {
+              alert(getTranslation("round-finished"));
+              checkWinners(current_input);
+            }
+            // Save Temporary Data
+            saveTemp(current_input);
+            $('.btn-save').html(getTranslation("save")).prop('disabled', false);
+
+            /*console.log('current row: ' + current_row);
+            console.log('rows: ' + rows.length);
+            console.log('current arrow: ' + current_id);
+            console.log('turn arrows: ' + turn_arrows);
+            console.log('arrow pos: ' + arrow_pos);
+            console.log($(rows[current_row]));*/
+            selectInput($(rows[current_row]).parent().find('input[data-col="' + current_id + '"]'));
+            //selectInput($(rows[current_row]).parent().find('input').not(':disabled').filter(function() { return $(this).val() == ""; }).first());
+        }
+        function hideTotals(el) {
+          let hide = el.hasClass('fa-eye');
+          el.toggleClass('fa-eye-slash', hide).toggleClass('fa-eye', !hide);
+          let inputs = el.parents('.accordion-collapse').find('.score-table').find('input:disabled');
+          if (hide) inputs.hide();
+          else inputs.show();
+        };
+        // Reset next arrow position after clicking on an input field.
+        function resetInput(el) {
+            var current_id = parseInt(el.data('col'));
+            arrow_pos = current_id - (current_id % turn_arrows);
+            selectInput(el);
+        }
+        function calcTotal(el) {
+            var total = 0;
+            el.parents('tbody').find('input').not(':disabled').each(function() {
+                let value = $(this).val();
+                if (value != "") total += parseInt(value);
+            });
+            el.parents('tbody').find('input:disabled').val(total);
+        }
+        function checkWinners(elm) {
+          let teams = elm.parents('.accordion-collapse').find('.score-table');
+          let team_score = [];
+          // Everybody in same team (individual play)
+          if (teams.length == 1) {
+            var players = [];
+          }
+          teams.each(function (index, el) {
+            team_score[index] = {
+              'id': $(el).data('id'),
+              'now': 0,
+              'total': 0,
+              'players': 0
+            };
+            $(el).find('input:disabled').each(function() {
+              team_score[index].players++;
+              team_score[index].total += parseInt($(this).val());
+              // Everybody in same team (individual play)
+              if (teams.length == 1) {
+                let pid = $(this).parents('tr').data('id').substr(7);
+                players.push([pid, parseInt($(this).val())]);
+              }
+            });
+            /*console.log($(this));
+            console.log('team-score-total: ' + team_score[index].total);
+            console.log('team-score-players: ' + team_score[index].players);*/
+            team_score[index].now = (team_score[index].total / team_score[index].players) / maxpoints;
+          });
+          if (teams.length == 1) {
+            // Sort by highest scores
+            players.sort(function(a, b) {
+              return b[1] - a[1];
+            });
+            let points = 1;
+            let prev = 0;
+            players.forEach(function(item, index) {
+              if (item[1] < prev) points = index + 1;
+              prev = item[1];
+              ipc.send('saveTempPoint', {'player_id': item[0], 'round': 1, 'points': points });
+              p_row = teams.find('[data-id="player_' + item[0] + '"]').parent('tbody');
+              p_row.find('.player-name').prepend(points + ' - ');
+              p_row.appendTo(teams);
+            });
+          } else {
+            team_score.forEach(team => {
+              team_table = elm.parents('.accordion-collapse').find('.score-table[data-id="' + team.id + '"]');
+              team_table.find('.team_average').html('(' + team.now + ')');
+              // Find and show ending positions
+              
+              /*team_score.forEach(enemy => {
+                  if (team.id != enemy.id) {
+                      if (team.diff >= 0 && team.diff > enemy.diff) {
+                          // Winner
+                          team_table.find('.player-name').css('background-color', '#9cff7b');
+                          team.pts_input.attr('data-points', 2);
+                      } else if (team.diff >= 0 && team.diff == enemy.diff) {
+                          // SAME!!!
+                          team_table.find('.player-name').css('background-color', '##9accff');
+                          team.pts_input.attr('data-points', 1);
+                      } else {
+                          // Loser
+                          team_table.find('.player-name').css('background-color', '#ffb6b6');
+                          team.pts_input.attr('data-points', 0);
+                      }
+                  }
+              });*/
+              // Update temporary score database with points...
+              //ipc.send('saveTempPoints', {'team_id': team.id.substr(5), 'round': team_table.parents('.accordion-item').find('.accordion-header').attr('id').substr(6), 'points': 0 /*team.pts_input.attr('data-points')*/ });
+            });
+            //console.log(team_score);
+          }
+        }
+        // Pre-load translation
+        let finished = "Klaar!";
+        $('.btn-save').click(function() {
+            if ($('.btn-save').html() == finished) {
+                ipc.send('gotoPage', 'app.html');
+            } else {
+                $(this).html(getTranslation("busy")).prop('disabled', true);
+                ipc.send('saveGuestGame');
+            }
+        });
+        ipc.on('savedGame', function(event) {
+            $('.btn-save').html(finished);
+            if ($('#roundsAccordion').find('input').not(':disabled').filter(function() { return $(this).val() == ""; }).length <= 0) $('.btn-save').prop('disabled', false);
+        });
+        // Save values in temporary scores, in case of catastrophic failure
+        function saveTemp(el) {
+            var data = [];
+            var playertable = el.parents('tbody').find('tr[data-id]');
+            //console.log(playertable);
+            if (playertable.length) {
+                data.player_id = playertable.data('id').substr(7);
+                data.team_id = el.parents('table').data('id').substr(5);
+                data.round = el.parents('.accordion-item').find('.accordion-header').attr('id').substr(6);
+                data.range = el.closest('.accordion-body').find('tr[data-id]').index(playertable) + 1;
+                data.date = $('#date').data('date');
+                data.competition_id = $('#competition').data('id');
+                data.count_average = $('#count_average').data('id');
+                data.part = 1;
+                data.points = el.parents('.score-table').find('.team_average').attr('data-points');
+                el.parents('tbody').find('input').not(':disabled').each(function() {
+                  let num = $(this).data('col');
+                  //console.log('num: ' + num);
+                  let numb = num;
+                  while (numb > 10) {
+                      //console.log('Numb too big!');
+                      data.part = Math.ceil(num / 10);
+                      numb = numb - 10;
+                  }
+                  data['arrow_' + numb] = $(this).val();
+                  if (num % 10 == 0 || num == total_arrows) {
+                      if (numb < 10) for (let i = numb+1; i <= 10; i++) data['arrow_' + i] = '';
+                      //console.log(data);
+                      ipc.send('saveTempScore', data);
+                  }
+                });
+            }
+        }
+        ipc.on('saveError', function(event, string) {
+          let msg = (string == 'tempScore') ? getTranslation("errorSaveTempScores") : getTranslation("errorSaveTempPoints");
+          alert(msg);
+        });
+        // Execute a function when the user presses a key on the keyboard
+        $(document).on('keypress', function(event) {
+            value = parseInt(current_input.val());
+            if (value > 10) current_input.val(10);
+            if (value > 1 && value < 5) current_input.val(5);
+            var keycode = event.keyCode || event.which;
+            // If the user presses the "Enter" key on the keyboard
+            if(keycode == '13') {
+                if (value != 0 && value < 5) current_input.val(5);
+                event.preventDefault();
+                calcTotal(current_input);
+                goToNextInput();
+            }
+        });
+        // Select first entry in open tab
+        const myCollapsible = document.getElementById('roundsAccordion');
+        myCollapsible.addEventListener('shown.bs.collapse', event => {
+            selectInput($('.collapse.show').find('input').not(':disabled').filter(function() { return $(this).val() == ""; }).first());
+        });
+
+        ipc.send('getGame');
+        ipc.on('gotGame', function(event, settings) {
+            //console.log(settings);
+            turn_arrows = parseInt(settings.cur_arrows);
+            minpoints = parseInt(settings.cur_score_min);
+            maxpoints = parseInt(settings.cur_score_max);
+            for (let p = minpoints; p <= maxpoints; p++) $('#points-buttons').prepend('<button class="btn btn-success btn-points">' + p + '</button>');
+            $('.btn-points').click(function() {
+                var points = $(this).html();
+                current_input.val(points);
+                calcTotal(current_input);
+                goToNextInput();
+            });
+            $('#competition').html((settings.cur_competition >= 3 ? getTranslation("competition") + ': ' : '') + settings.competition).data('id', settings.competition_id);
+            $('#date').html(getDate(settings.cur_date)).data('date', settings.cur_date);
+            $('#arrows').html(turn_arrows + ' ' + (turn_arrows == 1 ? getTranslation("arrow") : getTranslation("arrows")) + ' ' + getTranslation("per-turn"));
+            $('#count_average').data('id', settings.cur_count_average);
+            total_arrows = parseInt(turn_arrows) * parseInt(settings.cur_turns);
+            var table = '<tr>';
+            var scores = '<table class="score-table" cellspacing="0" border="0"><tr>';
+            for (let j = 1; j <= total_arrows; j++) {
+                if (j > 1 && j % 10 == 1) table += '</tr><tr>';
+                table += '<td><input type="text" aria-label="Pijl ' + j + '" data-col="' + j + '" class="form-control score-input" onclick="resetInput($(this))" style="min-width: 45px;border-radius:0;"></td>';
+                if (j <= 10) scores += '<td style="text-align:center; min-width: 45px;">' + j + '</td>';
+            }
+            var leftover = total_arrows % 10;
+            if (total_arrows > 10 && leftover != 0) {
+                table += '<td colspan="' + leftover + '"></td>';
+            }
+            table += '</tr>';
+            scores += '<td style="min-width: 60px; text-align:center;"><i class="fas fa-solid fa-eye hide-totals" onclick="hideTotals($(this))" style="cursor:pointer"></i></td></tr></table>';
+            var teams = [];
+            var groups = JSON.parse(settings.cur_players);
+            var teamnum = 0;
+            var playnum = 0;
+            groups.forEach(team => {
+                teamnum++;
+                $('#copygroup .accordion-header').attr('id', 'round_' + teamnum);
+                $('#copygroup .accordion-button').attr({'data-bs-target': '#collapse_' + teamnum, 'aria-controls': 'collapse_' + teamnum});
+                $('#copygroup .accordion-collapse').attr({'id': 'collapse_' + teamnum, 'aria-labelledby': 'round_' + teamnum});
+                if (teamnum !== 1) {
+                    $('#copygroup .accordion-button').attr('aria-expanded', 'false');
+                    $('#copygroup .accordion-button').addClass('collapsed');
+                    $('#copygroup .accordion-collapse').removeClass('show');
+                } else {
+                    $('#copygroup .accordion-button').attr('aria-expanded', 'true');
+                    $('#copygroup .accordion-button').removeClass('collapsed');
+                    $('#copygroup .accordion-collapse').addClass('show');
+                }
+                $('#copygroup .accordion-button').html(getTranslation("round") + ' ' + teamnum);
+                $("#roundsAccordion").append($('#copygroup').html());
+                teams[teamnum] = $(scores).clone(true);
+                teams[teamnum].attr('data-id', 'team_' + teamnum);
+                teams[teamnum].find('tr').prepend('<td class="col-3">' + getTranslation("team") + ' ' + teamnum + ' &nbsp; <span class="team_average" data-average="0" data-points="0"></span></td>');
+                team.forEach(player_id => {
+                    playnum++;
+                    let player = [];
+                    settings.players.forEach(play => {
+                        if (play.id == player_id) player = play;
+                    });
+                    var rowspan = Math.ceil(total_arrows/10);
+                    rowspan = (rowspan > 1) ? ' rowspan="' + rowspan + '"' : '';
+                    var clone = $(table).clone(true);
+                    clone.first().attr('data-id', 'player_' + player.id);
+                    clone.first().css({'border-top-width': '5px'});
+                    let padding = (total_arrows <= 10) ? '0.35rem' : (total_arrows <= 20) ? '1.6rem' : (total_arrows <= 30) ? '2.82rem' : '4.05rem';
+                    clone.first().prepend('<td class="col-3"' + rowspan + '><div class="player-name" style="padding:' + padding + ' 0.75rem">' + player.first_name + ' ' + player.last_name + '</div></td>');
+                    clone.first().append('<td' + rowspan + '><input type="text" aria-label="Totaal ' + playnum + '" class="form-control" style="min-width: 60px; padding:' + padding + ' 0.75rem; border-bottom-left-radius:0; border-top-left-radius:0;" disabled></td>')
+                    var wrap = $('<tbody></tbody>');
+                    wrap.append(clone);
+                    teams[teamnum].append(wrap);
+                });
+            });
+            $('#copygroup').remove();
+            $("#roundsAccordion").append('<div class="col-2"><button class="btn btn-success btn-back">' + getTranslation("back") + '</button></div>');
+            $('.btn-back').click(function() {
+                ipc.send('gotoPage', 'guests_setup.html');
+            });
+            // (for now?) Create a round per team:
+            /*    1-2   1-2-3   1-2-3-4
+            **    1-3   1-2-4   1-2-3-5
+            **    2-3   1-3-4   1-2-4-5
+            **          2-3-4   1-3-4-5
+            **                  2-3-4-5  */
+            var round = 1;
+            for (let i = 1; i <= teamnum; i++) {
+                if (teamnum == 1) {
+                    teams[i].appendTo('#collapse_' + round + ' > .accordion-body');
+                } else {
+                    // Each team doesn't play 1 round
+                    for (let j = 1; j < teamnum; j++) {
+                        if (round > teamnum) round = 1;
+                        teams[i].clone().appendTo('#collapse_' + round + ' > .accordion-body');
+                        round++;
+                    }
+                }
+            }
+            // Fill in previous scores (if found)
+            if (settings.players[0].scores !== undefined) {
+              $('#roundsAccordion').find('.score-input').each(function() {
+                let el = $(this);
+                // Find out the player_id, then the round and the part (if more than 10 arrows per round)
+                let playertable = el.parents('tbody').find('tr[data-id]');
+                player_id = playertable.data('id').substr(7);
+                round = el.parents('.accordion-item').find('.accordion-header').attr('id').substr(6);
+                part = 1;
+                let num = el.data('col');
+                let numb = num;
+                while (numb > 10) {
+                  part = Math.ceil(num / 10);
+                  numb = numb - 10;
+                }
+                settings.players.forEach(play => {
+                  if (play.id == player_id) player = play;
+                });
+                player.scores.forEach(scores => {
+                  if (scores['arrow_' + numb] != undefined && scores['arrow_' + numb] !== '' && scores.round == round && scores.part == part) el.val(player.scores[0]['arrow_' + numb]);
+                });
+                calcTotal(el);
+                // Check if all fields have been filled
+                if (el.closest('.accordion-body').find('input').not(':disabled').filter(function() { return $(this).val() == ""; }).length < 1) {
+                  checkWinners(el);
+                }
+              });
+            }
+            selectInput($('input:first'));
+        });
+    </script>
+  </body>
+</html>

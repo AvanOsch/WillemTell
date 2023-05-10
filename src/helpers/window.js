@@ -77,7 +77,10 @@ export default (name, options) => {
   state = ensureVisibleOnSomeDisplay(restore());
 
   win = new BrowserWindow(Object.assign({}, options, state));
-
+  win.once('ready-to-show', () => {
+    win.show();
+  });
+  
   win.on("close", saveState);
 
   return win;

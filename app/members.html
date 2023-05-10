@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-translate="title-members">Willem Tell - Leden</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/translate.js"></script>
+  </head>
+  <style>
+    .btn-next, .btn-back {
+        font-size: 20px;
+        margin-bottom: 5px;
+        width: 95%;
+    }
+  </style>
+  <body style="display:flex; overflow-y: auto;">
+    <div id="app" class="container" style="display: none; text-align: center;">
+        <div class="divTable" style="width: 100%;border: 1px solid #FFF;" >
+            <div class="divTableHeading" style="border: 1px solid #FFF;" >
+                <div class="divTableHead" data-translate="name">Naam</div>
+                <div class="divTableHead" data-translate="bow">🏹</div>
+                <div class="divTableHead" data-translate="avg">Gem.</div>
+                <div class="divTableHead" data-translate="address">Adres</div>
+                <div class="divTableHead" data-translate="phone">Telefoon</div>
+                <div class="divTableHead" data-translate="email">E-mail</div>
+                <div class="divTableHead" data-translate="birthday">Verjaardag</div>
+                <div class="divTableHead" data-translate="joined">Lid sinds</div>
+                <div class="divTableHead" data-translate="function">Functie</div>
+                <div class="divTableHead" data-translate="key">🔑</div>
+            </div>
+            <div class="divTableBody" id="players">
+            </div>
+        </div>
+        <div class="row" style="margin-top: 24px;">
+            <div class="col-2"><button class="btn btn-success btn-back" data-translate="back">Terug</button></div><div class="col-3"></div>
+            <div class="col-2"><button onclick="newMemberWindow()" type="button" class="btn btn-success btn-next"><b data-translate="new">Nieuw</b></button></div>
+            <div class="col-5"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        const ipc = window.require('electron').ipcRenderer;
+
+        setUpLanguages('nl-NL', 'nl-NL', ["en-US", "nl-NL"], "./lang/");
+        ipc.send("getLanguage", false);
+        ipc.on("gotLanguage", (event, lang) => {
+          setTimeout(function() {
+            changeLanguage(lang);
+          }, 0);
+        });
+
+        document.querySelector(".btn-back").addEventListener(
+          "click",
+          event => {
+            event.preventDefault();
+            ipc.send('gotoPage', 'app.html');
+          },
+          false
+        );
+
+        function newMemberWindow() {
+            ipc.send('newMemberWindow');
+        }
+        function editMemberWindow(id) {
+            ipc.send('editMemberWindow', id);
+        }
+        ipc.send('getAllFrom', 'players');
+        ipc.on('gotAllFrom_players', function(event, players) {
+            players.forEach(player => {
+                var insert = '<div class="divTableRow" onclick="editMemberWindow(' + player.id + ')" style="cursor:pointer;' + (player.active ? '' : 'color: #A9A9A9;') + '">\
+                                <div class="divTableCell">' + player.first_name + ' ' + player.last_name + '</div>\
+                                <div class="divTableCell">' + player.bow_number + '</div>\
+                                <div class="divTableCell">' + player.average + '</div>\
+                                <div class="divTableCell">' + player.address + (player.address != '' ? ', ' : '') + player.city + '</div>\
+                                <div class="divTableCell">' + (player.mobile ? player.mobile : player.phone) + '</div>\
+                                <div class="divTableCell">' + player.email + '</div>\
+                                <div class="divTableCell">' + player.birthday + '</div>\
+                                <div class="divTableCell">' + player.joined + '</div>\
+                                <div class="divTableCell">' + (player.function != 'none' ? getTranslation('function-' + player.function) : '') + '</div>\
+                                <div class="divTableCell">' + (player.has_key ? '✔' : '') + '</div>\
+                            </div>';
+                document.querySelector("#players").innerHTML += insert;
+                //console.log(player);
+            });
+        });
+    </script>
+  </body>
+</html>
