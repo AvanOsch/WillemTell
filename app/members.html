@@ -13,13 +13,16 @@
     <script src="./assets/js/translate.js"></script>
   </head>
   <style>
-    .btn-next, .btn-back {
+    .btn-next, .btn-back, .btn-view {
         font-size: 20px;
         margin-bottom: 5px;
         width: 95%;
     }
+    .inactive {
+        color: #A9A9A9;
+    }
   </style>
-  <body style="display:flex; overflow-y: auto;">
+  <body style="display:block; overflow-y: auto; margin-top:25px;">
     <div id="app" class="container" style="display: none; text-align: center;">
         <div class="divTable" style="width: 100%;border: 1px solid #FFF;" >
             <div class="divTableHeading" style="border: 1px solid #FFF;" >
@@ -40,7 +43,7 @@
         <div class="row" style="margin-top: 24px;">
             <div class="col-2"><button class="btn btn-success btn-back" data-translate="back">Terug</button></div><div class="col-3"></div>
             <div class="col-2"><button onclick="newMemberWindow()" type="button" class="btn btn-success btn-next"><b data-translate="new">Nieuw</b></button></div>
-            <div class="col-5"></div>
+            <div class="col-4"></div><div class="col-1"><button class="btn btn-success btn-view" title="Inactieve leden" data-translate-title="hide-inactive">👁</button></div>
         </div>
     </div>
     <script src="app.js"></script>
@@ -63,6 +66,18 @@
           },
           false
         );
+        document.querySelector(".btn-view").addEventListener(
+          "click",
+          event => {
+            event.preventDefault();
+            var els = document.querySelectorAll(".inactive");
+            els.forEach(elm => {
+                if (elm.style.display === "none") elm.style.display = "table-row";
+                else elm.style.display = "none";
+            });
+          },
+          false
+        );
 
         function newMemberWindow() {
             ipc.send('newMemberWindow');
@@ -73,7 +88,7 @@
         ipc.send('getAllFrom', 'players');
         ipc.on('gotAllFrom_players', function(event, players) {
             players.forEach(player => {
-                var insert = '<div class="divTableRow" onclick="editMemberWindow(' + player.id + ')" style="cursor:pointer;' + (player.active ? '' : 'color: #A9A9A9;') + '">\
+                var insert = '<div class="divTableRow' + (player.active ? '' : ' inactive') + '" onclick="editMemberWindow(' + player.id + ')" style="cursor:pointer;">\
                                 <div class="divTableCell">' + player.first_name + ' ' + player.last_name + '</div>\
                                 <div class="divTableCell">' + player.bow_number + '</div>\
                                 <div class="divTableCell">' + player.average + '</div>\
