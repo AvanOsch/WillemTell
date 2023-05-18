@@ -18,14 +18,20 @@
         margin-bottom: 5px;
         width: 95%;
     }
+    .show-settings {
+      font-size: 25px;
+      float: right;
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
   <body style="overflow-y: auto;">
-    <div id="app" style="display: none; margin:20px;">
+    <div id="app" style="display: none; margin:20px;"><div class="show-settings" onclick="showhide()" title="Instellingen" data-translate-title="settings">👁</div>
         <form class="form-horizontal">
             <fieldset>
             
             <!-- Form Name -->
-            <legend data-translate="competition-setup">Competitie schieten</legend>
+            <legend><span data-translate="competition-setup">Competitie schieten</span> &nbsp; <span id="competition_name" style="font-size: 16px;"></span></legend>
             
             <!-- Text input-->
             <div class="row">
@@ -37,26 +43,15 @@
             </div>
             
             <!-- Multiple Checkboxes -->
-            <div class="form-group col-sm-6 col-md-4 col-xl-2">
-                <label class="control-label" for="competition"><span data-translate="competition">Competitie</span>: <span id="competition_name"></span></label>
-                <div class="">
-                    <label class="radio-inline" for="competition-1">
-                        <input type="radio" name="competition" id="competition-1" value="3" checked="checked">
-                        <span data-translate="yes">Ja</span>
-                    </label> &nbsp;
-                    <label class="radio-inline" for="competition-0">
-                        <input type="radio" name="competition" id="competition-0" value="0">
-                        <span data-translate="no">Nee</span>
-                    </label> &nbsp;
-                    <label class="radio-inline" for="competition-2">
-                      <input type="radio" name="competition" id="competition-2" value="2">
-                      👑
-                  </label>
-              </div>
+            <div class="form-group col-sm-6 col-md-4 col-xl-2 competition" style="display:none">
+                <label class="control-label" for="competition" data-translate="competition">Competitie</label>
+                <div>
+                  <select id="competition" name="competition" class="form-select"></select>
+                </div>
             </div>
               
               <!-- Multiple Checkboxes -->
-              <div class="form-group col-sm-6 col-md-4 col-xl-2">
+              <div class="form-group col-sm-6 col-md-4 col-xl-2 count_average" style="display:none">
                 <label class="control-label" for="count_average" data-translate="count-average">Gemiddelde tellen</label>
                 <div class="">
                     <label class="radio-inline" for="count_average-1">
@@ -122,7 +117,7 @@
             </div>
             </div>
             <div class="row" style="margin-top:20px;">
-                <label class="control-label" for="players" data-translate="players-today">Wie spelen er vandaag mee?</label>
+                <label class="control-label" for="players"><span data-translate="players-today">Wie spelen er vandaag mee?</span> &nbsp; <span style="cursor:pointer; user-select: none;" onclick="checkall()" title="Selecteer alles" data-translate-title="check-all">✅</span></label>
                 <div id="players"></div>
             </div>
             <div class="row" style="margin-top: 24px;">
@@ -142,7 +137,7 @@
       ipc.on("gotLanguage", (event, lang) => {
         setTimeout(function() {
           changeLanguage(lang);
-        }, 0);
+        }, 5);
       });
 
       document.getElementById('date').valueAsDate = new Date();
@@ -187,17 +182,55 @@
         false
       );
 
+      function showhide() {
+        hidden.forEach(function(v) {
+          //console.log('Hide: ' + v);
+          var x = document.querySelectorAll("." + v);
+          if (hide.indexOf(v) != -1) {
+            for (i = 0; i < x.length; i++) {
+              if (x[i].style.display == "none") x[i].style.display = "block";
+              else x[i].style.display = "none";
+            }
+          }
+        });
+      }
+
+      function checkall() {
+        var x = document.querySelectorAll('[name="players"]');
+        for (i = 0; i < x.length; i++) {
+          x[i].click();
+        }
+      }
+
+      ipc.send('getAllFrom', 'competition');
+      ipc.on('gotAllFrom_competition', function(event, competitions) {
+        competitions.forEach(competition => {
+          // Exclude guest competition
+          if (competition.id != 1) document.querySelector("#competition").innerHTML += '<option value="' + competition.id + '">' + competition.name + '</option>';
+        });
+      });
+      document.querySelector("#competition").addEventListener(
+        "change",
+        event => {
+          event.preventDefault();
+          let cmp = document.querySelector("#competition");
+          document.querySelector("#competition_name").innerHTML = '(' + cmp.options[cmp.selectedIndex].text + ')';
+        },
+        false
+      );
+
+      var hidden = ['competition', 'count_average', 'team_type', 'teams', 'arrows', 'turns', 'minmax'];
+      var hide; // Holds settings that should be hidden
       ipc.send('getAllFrom', 'settings');
       ipc.on('gotAllFrom_settings', function(event, settings) {
-        sets = ['team_type','teams','arrows','turns','score_min', 'score_max'];
+        sets = ['competition', 'team_type', 'teams', 'arrows', 'turns', 'score_min', 'score_max'];
         settings.forEach(setting => {
           if (sets.indexOf(setting.setting) != -1) {
             //console.log(setting.setting + ' - ' + setting.value);
             document.querySelector("#" + setting.setting).value = setting.value;
           }
           if (setting.setting === 'hide_fields') {
-            var hidden = ['team_type', 'teams', 'arrows', 'turns', 'minmax'];
-            var hide = setting.value;
+            hide = setting.value;
             if (hide.indexOf(',') != -1) hide = hide.split(',');
             hidden.forEach(function(v) {
               //console.log('Hide: ' + v);
@@ -208,7 +241,7 @@
           if (setting.setting == 'competition') {
             ipc.send('getCompetition', setting.value);
             ipc.on('gotCompetition', function(event, competition) {
-              document.querySelector("#competition_name").innerHTML = competition[0].name;
+              document.querySelector("#competition_name").innerHTML = '(' + competition[0].name + ')';
             });
           }
         });

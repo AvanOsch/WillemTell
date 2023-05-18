@@ -47,7 +47,7 @@
       ipc.on("gotLanguage", (event, lang) => {
         setTimeout(function() {
           changeLanguage(lang);
-        }, 0);
+        }, 5);
       });
 
       ipc.on('gotData', function(event, data) {
@@ -66,11 +66,13 @@
           if (showname) scores += '<th>' + getTranslation("name") + '</th>';
           scores += '<th>' + getTranslation("date") + '</th><th>' + getTranslation("competition") + '</th>';
           for (let i = 1; i <= 10; i++) scores += '<th style="text-align:center; min-width: 45px;">' + i + '</th>';
-          scores += '<th>' + getTranslation("total") + '</th><th>' + getTranslation("arrows") + '</th><th>' + getTranslation("points") + '</th></tr><tr>';
-          var arrows = [];
-          var total = [];
+          scores += '<th>' + getTranslation("total") + '</th><th>' + getTranslation("arrows") + '</th><th>' + getTranslation("points") + '</th></tr>';
+          var arrows = {};
+          var total = {};
           var cur_team = 0;
-          var cur_round = 0;
+          var cur_date = 0;
+          var p_row = {};
+          var replace = {};
           data[0].forEach((row, index) => {
             let namechange = false;
             if (pname == "" || pname != row.first_name + ' ' + row.last_name) {
@@ -78,39 +80,60 @@
               pname = row.first_name + ' ' + row.last_name;
               if (!showname) $('#app').append('<h4>' + pname + '</h4>');
             }
+            let pid = (row.player_id == undefined && row.guest_id != undefined) ? row.guest_id : row.player_id;
+            if (p_row[pid] == undefined) p_row[pid] = '';
             if (cur_team == 0) cur_team = row.team_id;
+            if (cur_date == 0) cur_date = row.date;
             if (showname && cur_team != row.team_id) {
               cur_team = row.team_id;
-              scores += '</tr><tr><td colspan="' + (showname ? '15' : '14') + '" style="border:0;">&nbsp;</td></tr><tr>';
+              // Add team player data to table
+              for (const r in p_row) {
+                scores += p_row[r];
+              }
+              p_row = [];
+              scores += '<tr><td colspan="' + (showname ? '15' : '14') + '" style="border:0;">&nbsp;</td></tr><tr>';
               if (showname) scores += '<th>' + getTranslation("name") + '</th>';
               scores += '<th>' + getTranslation("date") + '</th><th>' + getTranslation("competition") + '</th>';
               for (let i = 1; i <= 10; i++) scores += '<th style="text-align:center; min-width: 45px;">' + i + '</th>';
-              scores += '<th>' + getTranslation("total") + '</th><th>' + getTranslation("arrows") + '</th><th>' + getTranslation("points") + '</th></tr><tr>';
+              scores += '<th>' + getTranslation("total") + '</th><th>' + getTranslation("arrows") + '</th><th>' + getTranslation("points") + '</th></tr>';
+            } else if (!showname && cur_date != row.date) {
+              cur_date = row.date;
+              // Add single player data to table
+              for (const r in p_row) {
+                scores += p_row[r];
+              }
+              p_row = [];
             }
-            if (row.part != 1 && !namechange) {
-              if (showname) scores += '<td colspan="3"></td>';
-              else scores += '<td colspan="2"></td>';
-            } else {
-              if (showname) scores += '<td>' + pname + '</td>';
-              scores += '<td>' + row.date + '</td><td>' + (data[1].competition == undefined ? row.name : data[1].competition.name) + '</td>';
+
+            if (p_row[pid] == undefined) p_row[pid] = '';
+            p_row[pid] += '<tr>';
+            if (row.part == 1) {
+              if (showname) p_row[pid] += '<td rowspan="1">' + pname + '</td>';
+              p_row[pid] += '<td rowspan="1"><nobr>' + row.date + '</nobr></td><td rowspan="1"><nobr>' + (data[1].competition == undefined ? row.name : data[1].competition.name) + '</nobr></td>';
             }
-            if (row.player_id == undefined && row.guest_id != undefined) row.player_id = row.guest_id;
-            if (arrows[row.player_id] == undefined) arrows[row.player_id] = 0;
-            if (total[row.player_id] == undefined) total[row.player_id] = 0;
+            if (arrows[pid] == undefined) arrows[pid] = 0;
+            if (total[pid] == undefined || row.part == 1) total[pid] = 0;
             for (let i = 1; i <= 10; i++) {
               if (row['arrow_' + i] !== '') {
-                arrows[row.player_id]++;
-                total[row.player_id] += row['arrow_' + i];
+                arrows[pid]++;
+                total[pid] += row['arrow_' + i];
               }
-              scores += '<td style="text-align:center; min-width: 45px;">' + row['arrow_' + i] + '</td>';
+              p_row[pid] += '<td style="text-align:center; min-width: 45px;">' + row['arrow_' + i] + '</td>';
             }
-            if (data[0][index + 1] != undefined && data[0][index + 1].part > 1) {
-              scores += '<td></td><td></td><td></td></tr>';
+            if (row.part == 1) {
+              replace[pid] = '<td>' + total[pid] + '</td><td>' + arrows[pid] + '</td><td>' + row.points + '</td>';
+              p_row[pid] += replace[pid];
             } else {
-              scores += '<td>' + total[row.player_id] + '</td><td>' + arrows[row.player_id] + '</td><td>' + row.points + '</td></tr>';
-              total[row.player_id] = 0;
+              let replaceme = '<td rowspan="' + row.part + '">' + total[pid] + '</td><td rowspan="' + row.part + '">' + arrows[pid] + '</td><td rowspan="' + row.part + '">' + row.points + '</td>';
+              p_row[pid] = p_row[pid].replace(replace[pid], replaceme);
+              replace[pid] = replaceme;
+              p_row[pid] = p_row[pid].replaceAll('rowspan="' + (row.part - 1) + '"', 'rowspan="' + row.part + '"');
             }
+            p_row[pid] += '</tr>';
           });
+          for (const r in p_row) {
+            scores += p_row[r];
+          }
           scores += '</table>';
           $(scores).appendTo('#app');
           // Table, until round changes.

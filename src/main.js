@@ -256,11 +256,51 @@ ipcMain.on("getActivePlayers", async (event, arg) => {
       }
     })
   }
-  if (arg != undefined && arg != "") var data = await knex.select('*').from('guests').where({ group_name: arg });
-  else var data = await knex.select('*').from('players').whereNot({ active: '0' });
+  if (arg != undefined && arg != "") {
+    var data = await knex.select('*').from('guests').where({ group_name: arg });
+  } else {
+    var pdata = await knex.select('*').from('players').whereNot({ active: '0' });
+    var data = await getAverage(pdata);
+  }
   event.reply("gotActivePlayers", data);
   //console.log(data);
 });
+
+async function getAverage(players) {
+  var averagetype = await knex.first('value').from('settings').where('setting', 'average_type');
+  if (averagetype.value !== 'fixed') {
+    var where = { count_average: 1 };
+    if (averagetype.value === 'competition') {
+      var competition = await knex.first('value').from('settings').where('setting', 'competition');
+      where['competition_id'] = competition.value;
+    }
+    for (let player of players) {
+      where['player_id'] = player.id;
+      var pdata = await knex.select('*').from('scores').where(where).catch(function(error) {
+        dialog.showMessageBox(childWindow, {
+          type: 'error',
+          title: lang.error,
+          message: lang.errorGettingFromDB.replace("%s", lang.average),
+          detail: lang.errorGettingFromDBLong + error.message
+        }).then(data => {console.log(data)});
+      });
+      //console.log(pdata);
+      var arrows = 0;
+      var score = 0;
+      for (let play of pdata) {
+        for (let i = 1; i <= 10; i++) {
+          if (play['arrow_' + i] !== '' && play['arrow_' + i] !== null) {
+            arrows++;
+            score += play['arrow_' + i];
+          }
+        }
+        player.arrows = arrows;
+        player.average = (score / arrows).toFixed(3);
+      }
+    }
+  }
+  return players;
+}
 
 ipcMain.on("addGroup", async (event, name) => {
   var exists = await knex('groups').select('group_id').where({ group_name: name }).then(check_exist);
@@ -343,30 +383,31 @@ ipcMain.on("getPlayersData", async (event, arg) => {
   //var pdata = await knex.select('first_name', 'last_name', 'average').from('players').where('competition_id', cdata.value);
   var data = [];
   pdata.forEach(player => {
-    if (data[player.player_id] == undefined) {
-      data[player.player_id] = [];
-      data[player.player_id].id = player.player_id;
-      data[player.player_id].first_name = player.first_name;
-      data[player.player_id].last_name = player.last_name;
-      data[player.player_id].average = player.average;
-      data[player.player_id].active = player.active;
-      data[player.player_id].arrows = 0;
-      data[player.player_id].score = 0;
-      data[player.player_id].points = 0;
-      data[player.player_id].average_now = 0;
-      data[player.player_id].improvement = 0;
-      data[player.player_id].arrows_all = 0;
-      data[player.player_id].points_all = 0;
+    let pid = player.player_id;
+    if (data[pid] == undefined) {
+      data[pid] = [];
+      data[pid].id = pid;
+      data[pid].first_name = player.first_name;
+      data[pid].last_name = player.last_name;
+      data[pid].average = player.average;
+      data[pid].active = player.active;
+      data[pid].arrows = 0;
+      data[pid].score = 0;
+      data[pid].points = 0;
+      data[pid].average_now = 0;
+      data[pid].improvement = 0;
+      data[pid].arrows_all = 0;
+      data[pid].points_all = 0;
     }
     for (let i = 1; i <= 10; i++) {
-      if (player['arrow_' + i] != '' && player['arrow_' + i] != null) {
-        data[player.player_id].arrows++;
-        data[player.player_id].score += player['arrow_' + i];
+      if (player['arrow_' + i] !== '' && player['arrow_' + i] !== null) {
+        data[pid].arrows++;
+        data[pid].score += player['arrow_' + i];
       }
     }
-    data[player.player_id].average_now = data[player.player_id].score / data[player.player_id].arrows;
-    data[player.player_id].points += player.points;
-    data[player.player_id].improvement = data[player.player_id].average_now - player.average;
+    data[pid].average_now = data[pid].score / data[pid].arrows;
+    data[pid].points += player.points;
+    data[pid].improvement = data[pid].average_now - player.average;
   });
   event.reply("gotPlayersData", data);
   //console.log(data);
@@ -408,6 +449,66 @@ ipcMain.on("getDataWhere", async (event, arg) => {
 //  console.log(data);
 });
 
+ipcMain.on("getBestOf", async (event, where) => {
+  let bestof = where['bestof'];
+  delete where['bestof'];
+  where['scores.count_average'] = 1;
+  if (where['scores.competition_id'] == undefined) {
+    var cdata = await knex.first('value').from('settings').where('setting', 'competition');
+    where['scores.competition_id'] = cdata.value;
+  }
+  var pdata = await knex.select(knex.raw('players.first_name, players.last_name, players.average, players.active, scores.*, competition.name,' +
+    '(scores.arrow_1 + scores.arrow_2 + scores.arrow_3 + scores.arrow_4 + scores.arrow_5 + scores.arrow_6 + scores.arrow_7 + scores.arrow_8 + scores.arrow_9 + scores.arrow_10) as totals')).from('players')
+            .join('scores', {'scores.player_id': 'players.id'})
+            .join('competition', {'scores.competition_id': 'competition.id'})
+            .where(where)
+            .orderBy('totals', 'desc').catch(function(error) {
+    dialog.showMessageBox(mainWindow, {
+      type: 'error',
+      title: lang.error,
+      message: lang.errorGettingFromDB.replace("%s", lang.players),
+      detail: lang.errorGettingFromDBLong + error.message
+    }).then(data => {console.log(data)});
+  });
+  if (where['players.id'] != undefined) {
+    createChildWindow('data_show.html');
+    childWindow.once("ready-to-show", () => {
+      childWindow.webContents.send("gotData", [pdata, where]);
+    });
+  } else {
+    var data = [];
+    pdata.forEach(player => {
+      let pid = player.player_id;
+      if (data[pid] == undefined) {
+        data[pid] = [];
+        data[pid].id = pid;
+        data[pid].first_name = player.first_name;
+        data[pid].last_name = player.last_name;
+        data[pid].average = player.average;
+        data[pid].active = player.active;
+        data[pid].arrows = 0;
+        data[pid].score = 0;
+        data[pid].points = 0;
+        data[pid].average_now = 0;
+        data[pid].improvement = 0;
+        data[pid].arrows_all = 0;
+        data[pid].points_all = 0;
+      }
+      for (let i = 1; i <= 10; i++) {
+        if (player['arrow_' + i] !== '' && player['arrow_' + i] !== null && data[pid].arrows < bestof) {
+          data[pid].arrows++;
+          data[pid].score += player['arrow_' + i];
+        }
+      }
+      data[pid].average_now = data[pid].score / data[pid].arrows;
+      data[pid].points += player.points;
+      data[pid].improvement = data[pid].average_now - player.average;
+    });
+    event.reply("gotPlayersData", data);
+    //console.log(pdata);
+  }
+});
+
 function check_exist(rows) {
   if (!rows.length) return false;
   else return true;
@@ -424,15 +525,14 @@ ipcMain.on("submitSettings", async (event, formData) => {
   //console.log(formData.arrows);
   var success = knex.transaction(trx => {
     const queries = [];
-    const settings = ['language', 'team_type', 'teams', 'arrows', 'turns', 'score_min', 'score_max', 'average_multiplier', 'competition', 'hide_fields'];
-    settings.forEach(setting => {
+    for (let setting in formData) {
       console.log(setting + ': ' + formData[setting]);
       if (setting == 'hide_fields') {
         formData.hide_fields = (formData.hide_fields != undefined && formData.hide_fields != '') ? formData.hide_fields.toString() : '';
       }
       const query = knex('settings').where('setting', setting).update('value',formData[setting]).transacting(trx); // This makes every update be in the same transaction
       queries.push(query);
-    });
+    }
     Promise.all(queries) // Once every query is written
         .then(trx.commit) // We try to execute all of them
         .catch(trx.rollback); // And rollback in case any of them goes wrong
@@ -523,8 +623,12 @@ ipcMain.on("setCompetition", async (event, formData) => {
     });
     if (success) {
       createChildWindow('competition_players.html');
-      if (formData['competition'] == 1) formData.players = await knex.select('id', 'first_name', 'last_name', 'team_id').from('guests').whereIn('id', players);
-      else formData.players = await knex.select('id', 'first_name', 'last_name', 'team_id', 'average').from('players').whereIn('id', players);
+      if (formData['competition'] == 1) {
+        formData.players = await knex.select('id', 'first_name', 'last_name', 'team_id').from('guests').whereIn('id', players);
+      } else {
+        var pdata = await knex.select('id', 'first_name', 'last_name', 'team_id', 'average').from('players').whereIn('id', players);
+        formData.players = await getAverage(pdata);
+      }
       childWindow.once("ready-to-show", () => {
         childWindow.webContents.send("gotPlayers", formData);
       });
@@ -571,7 +675,7 @@ ipcMain.on("goCompetition", async (event, players) => {
 });
 
 ipcMain.on("getGame", async (event) => {
-  var settings = await knex.select('*').from('settings').whereIn('setting', ['cur_team_type', 'cur_teams', 'cur_arrows', 'cur_turns', 'cur_score_min', 'cur_score_max', 'competition', 'cur_competition', 'cur_count_average', 'cur_date', 'cur_players']).catch(function(error) {
+  var settings = await knex.select('*').from('settings').whereIn('setting', ['cur_team_type', 'cur_teams', 'cur_arrows', 'cur_turns', 'cur_score_min', 'cur_score_max', 'cur_competition', 'cur_count_average', 'cur_date', 'cur_players', 'average_multiplier']).catch(function(error) {
     dialog.showMessageBox(mainWindow, {
       type: 'error',
       title: lang.error,
@@ -588,8 +692,7 @@ ipcMain.on("getGame", async (event) => {
   teams.forEach(team => {
     players.push(...team);
   });
-  data.competition_id = data.competition;
-  if (data.cur_competition <= 2) data.competition_id = data.cur_competition; // Set to 0: "No Competition", 1: "Guest Archers" or 2: "Koningsschieten"
+  data.competition_id = data.cur_competition; // Set to 0: "No Competition", 1: "Guest Archers" or 2: "Koningsschieten"
   var competition = await knex.first('*').from('competition').where('id', data.competition_id).catch(function(error) {
     dialog.showMessageBox(mainWindow, {
       type: 'error',
@@ -613,7 +716,10 @@ ipcMain.on("getGame", async (event) => {
       detail: lang.errorGettingFromDBLong + error.message
     }).then(data => {console.log(data)});
   });
-  //console.log(data);
+  if (data.competition_id != 1) {
+    data.players = await getAverage(data.players);
+  }
+//console.log(data);
   // Save data temporarily, to avoid losing data because of any crashes
   var exists = await knex.select('player_id').from('scores_temp').where({competition_id: data.competition_id, date: data.cur_date});
   if (!exists.length) {
@@ -934,6 +1040,23 @@ ipcMain.on("deletePlayer", async (event, player_id) => {
       }
     }
   })
+});
+
+ipcMain.on("saveAverage", async (event, average) => {
+  for (const id in average) {
+    console.log('Updating player ' + id + ' - average: ' + average[id]);
+    var success = await knex('players').where({ id: id }).update({ average: average[id] }).catch(function(error) {
+      dialog.showMessageBox(childWindow, {
+        type: 'error',
+        title: lang.error,
+        message: lang.errorUpdateDB.replace("%s", lang.players),
+        detail: lang.errorUpdateDBLong + error.message
+      }).then(data => {console.log(data)});
+    });
+    if (success) {
+      mainWindow.webContents.reloadIgnoringCache();
+    }
+  }
 });
 
 app.on("window-all-closed", () => {
