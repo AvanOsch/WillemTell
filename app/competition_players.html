@@ -325,7 +325,7 @@ function shuffleArray(array) {
         ipc.on("gotLanguage", (event, lang) => {
           setTimeout(function() {
             changeLanguage(lang);
-          }, 0);
+          }, 5);
         });
 
         document.querySelector("#submitForm").addEventListener(
@@ -357,7 +357,7 @@ function shuffleArray(array) {
                             <div class="list-item border mb-1">\
                               <div class="text-muted" style="cursor:all-scroll; padding-right: 0!important"><i class="user-handle fas fa-ellipsis-v"></i></div>\
                               <div class="flex">' + player.first_name + ' ' + player.last_name;
-            if (player.average != undefined) insert += '<span class="item-except text-muted text-sm userinfo">' + getTranslation("average") + ': ' + player.averige + '</span>';
+            if (player.average != undefined) insert += '<span class="item-except text-muted text-sm userinfo">' + getTranslation("average") + ': ' + player.average + '</span>';
             insert += '</div>\
                               <a class="remove-user text-muted" href="#" data-username="' + player.first_name + ' ' + player.last_name + '"><i class="fas fa-trash"></i></a>\
                             </div>\

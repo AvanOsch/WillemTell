@@ -118,7 +118,7 @@
         ipc.on("gotLanguage", (event, lang) => {
           setTimeout(function() {
             changeLanguage(lang);
-          }, 0);
+          }, 5);
         });
 
         document.getElementById('date').valueAsDate = new Date();

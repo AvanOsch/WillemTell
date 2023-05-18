@@ -11,10 +11,11 @@ body {
   color: white;
   height: 100vh;
   background: linear-gradient(
-    200.96deg,
-    #fedc2a -29.09%,
-    #5f7400 51.77%,
-    #284600 129.35%
+    /*200.96deg,*/
+    270deg,
+    #9aac00 -29.09%,
+    #516300 51.77%,
+    #223b00 129.35%
   );
   font-family: sans-serif;
   overflow-y: hidden;
