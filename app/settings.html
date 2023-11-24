@@ -6,11 +6,16 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
     
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}
+    </script>
     <!-- Bootstrap Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/jquery-3.6.4.min.js"></script>
+    <script src="./assets/js/jquery-ui.min.js"></script>
     <script src="./assets/js/popper.min.js"></script>
     <script src="./assets/js/bootstrap.min.js"></script>
     <script src="./assets/js/translate.js"></script>
+    <script>if (window.module) module = window.module;</script>
   </head>
   <style>
     .btn-next, .btn-back {
@@ -25,12 +30,12 @@
       <form class="form-horizontal">
         <fieldset>
         <!-- Form Name -->
-        <legend>Instellingen</legend>
+        <legend><span data-toggle="tooltip" data-placement="right" style="user-select: none;" title="De meeste instellingen kunnen voor het schieten nog veranderd worden.\n Alleen de taal en het aanmaken/verwijderen van competities moet hier gebeuren." data-translate-title="settings-i">Instellingen</span></legend>
 
         <div class="row">
           <!-- Select Basic -->
           <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
-            <label class="control-label" for="team_type" data-translate="team-type">Team Soort</label>
+            <label class="control-label" for="team_type" data-translate="team-type">Team Soort</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Vaste teams gebruiken?" data-translate-title="team-type-i">&#8505;</span>
             <div>
               <select id="team_type" name="team_type" class="form-select">
                 <option value="random" data-translate="random">Random</option>
@@ -40,7 +45,7 @@
           </div>
           <!-- Select Basic -->
           <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
-            <label class="control-label" for="teams" data-translate="teams">Teams</label>
+            <label class="control-label" for="teams" data-translate="teams">Teams</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Standaard aantal teams" data-translate-title="teams-i">&#8505;</span>
             <div>
               <input id="teams" name="teams" type="number" min="1" max="5" step="1" placeholder="Teams" data-translate-placeholder="teams" class="form-control input-md" required="">
             </div>
@@ -48,14 +53,14 @@
 
           <!-- Select Basic -->
           <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
-            <label class="control-label" for="arrows" data-translate="arrows-per-turn">Pijlen per beurt</label>
+            <label class="control-label" for="arrows" data-translate="arrows-per-turn">Pijlen per beurt</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Aantal Pijlen voordat ze weer gehaald worden" data-translate-title="arrows-per-turn-i">&#8505;</span>
             <div>
               <input id="arrows" name="arrows" type="number" min="1" max="10" step="1" placeholder="Pijlen" data-translate-placeholder="arrows" class="form-control input-md" required="">
             </div>
           </div>
           <!-- Text input-->
           <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
-            <label class="control-label" for="turns" data-translate="turns-per-round">Beurten per ronde</label>
+            <label class="control-label" for="turns" data-translate="turns-per-round">Beurten per ronde</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Hoeveel beurten voordat schutters wisselen?" data-translate-title="turns-per-round-i">&#8505;</span>
             <div>
               <input id="turns" name="turns" type="number" min="1" max="30" step="1" placeholder="Beurten" data-translate-placeholder="turns" class="form-control input-md" required="">
             </div>
@@ -63,14 +68,14 @@
 
           <!-- Select Basic -->
           <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
-            <label class="control-label" for="score_min" data-translate="min-score">Minimum Score</label>
+            <label class="control-label" for="score_min" data-translate="min-score">Minimum Score</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Minimum punten die per pijl geschoten kunnen worden" data-translate-title="min-score-i">&#8505;</span>
             <div>
               <input id="score_min" name="score_min" type="number" min="1" max="10" step="1" placeholder="1" class="form-control input-md" required="">
             </div>
           </div>
           <!-- Text input-->
           <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
-            <label class="control-label" for="score_max" data-translate="max-score">Maximum Score</label>
+            <label class="control-label" for="score_max" data-translate="max-score">Maximum Score</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Maximum punten die per pijl geschoten kunnen worden" data-translate-title="max-score-i">&#8505;</span>
             <div>
               <input id="score_max" name="score_max" type="number" min="10" max="100" step="1" placeholder="10" class="form-control input-md" required="">
             </div>
@@ -78,7 +83,7 @@
 
           <!-- Select Basic -->
           <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
-            <label class="control-label" for="average_type" data-translate="average-type">Gemiddelde</label>
+            <label class="control-label" for="average_type" data-translate="average-type">Gemiddelde</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Gemiddelde automatisch berekenen?" data-translate-title="average-type-i">&#8505;</span>
             <div>
               <select id="average_type" name="average_type" class="form-select">
                 <option value="fixed" data-translate="fixed">Vast</option>
@@ -89,7 +94,7 @@
           </div>
           <!-- Text input-->
           <div class="form-group col-xs-12 col-sm-6 col-md-3 col-lg-2">
-            <label class="control-label" for="average_multiplier" data-translate="average-multiplier">Gem. correctie</label>  
+            <label class="control-label" for="average_multiplier" data-translate="average-multiplier">Gem. correctie</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Het gemiddelde wordt vermenigvuldigd met deze correctie (0,99=1%  0,95=5%)" data-translate-title="average-multiplier-i">&#8505;</span>
             <div>
               <input id="average_multiplier" name="average_multiplier" type="number" min="0" max="2" step="0.01" placeholder="0.9" class="form-control input-md" required="">
             </div>
@@ -124,14 +129,14 @@
           <div class="row">
         <!-- Select Basic -->
           <div class="form-group col-md-4">
-            <label class="control-label" for="competition" data-translate="current-competition">Huidige Competitie</label>
+            <label class="control-label" for="competition" data-translate="current-competition">Huidige Competitie</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Hier worden de nieuwe scores aan toegevoegd" data-translate-title="current-competition-i">&#8505;</span>
             <div>
               <select id="competition" name="competition" class="form-select"></select>
             </div>
           </div>
           <!-- Button -->
           <div class="form-group col-md-4">
-            <label class="control-label" for="competition_name" data-translate="new-competition">Nieuwe Competitie</label>
+            <label class="control-label" for="competition_name" data-translate="new-competition">Nieuwe Competitie</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Vul een naam in om een nieuwe competitie aan te maken" data-translate-title="new-competition-i">&#8505;</span>
             <div>
               <input id="competition_name" type="text" placeholder="Competitie Naam" data-translate-placeholder="competition-name" class="form-control input-md">
             </div>
@@ -141,7 +146,7 @@
           </div>
           <!-- Button -->
           <div class="form-group col-md-4">
-            <label class="control-label" for="competition_del" data-translate="del-competition">Verwijder Competitie</label>
+            <label class="control-label" for="competition_del" data-translate="del-competition">Verwijder Competitie</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Alleen competities zonder gegevens kunnen verwijderd worden" data-translate-title="del-competition-i">&#8505;</span>
             <div>
               <select id="competition_del" class="form-select"><option value="0">-------------</option></select>
             </div>
@@ -167,6 +172,7 @@
       ipc.on("gotLanguage", (event, lang) => {
         setTimeout(function() {
           changeLanguage(lang);
+          $(function(){ $('[data-toggle="tooltip"]').tooltip() }) // ENABLE TOOLTIP FUNCTION (after translation is set)
         }, 5);
       });
 

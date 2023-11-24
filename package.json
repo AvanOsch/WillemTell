@@ -2,7 +2,7 @@
   "name": "willem-tell",
   "productName": "Willem Tell",
   "description": "Scores voor WillemTell schutters",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "private": true,
   "author": "AvanOsch <Albert@AvanOsch.nl>",
   "copyright": "© 2023, AvanOsch.",
@@ -22,9 +22,6 @@
     "directories": {
       "buildResources": "resources"
     },
-    "extraResources": [
-      "WillemTell.db"
-    ],
     "publish": null
   },
   "scripts": {

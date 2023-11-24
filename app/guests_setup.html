@@ -7,11 +7,16 @@
     <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="./assets/css/fontawesome.min.css" />
 
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}
+    </script>
     <!-- Bootstrap Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/jquery-3.6.4.min.js"></script>
+    <script src="./assets/js/jquery-ui.min.js"></script>
     <script src="./assets/js/popper.min.js"></script>
     <script src="./assets/js/bootstrap.min.js"></script>
     <script src="./assets/js/translate.js"></script>
+    <script>if (window.module) module = window.module;</script>
   </head>
   <style>
     .btn-next, .btn-back {
@@ -46,8 +51,8 @@
             </div>
 
             <!-- Text input-->
-            <div class="form-group col-sm-6 col-md-3 col-xl-1 arrows">
-              <label class="control-label" for="arrows" data-translate="arrows-turn">Pijlen/beurt</label>
+            <div class="form-group col-sm-6 col-md-3 col-xl-2 arrows">
+              <label class="control-label" for="arrows" data-translate="arrows-turn">Pijlen/beurt</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Aantal Pijlen voordat ze weer gehaald worden" data-translate-title="arrows-per-turn-i">&#8505;</span>
               <div class="">
                 <input id="arrows" name="arrows" type="number" min="1" max="10" step="1" placeholder="Pijlen" data-translate-placeholder="arrows" class="form-control input-md" required="">
               </div>
@@ -55,23 +60,31 @@
 
             <!-- Text input-->
             <div class="form-group col-sm-6 col-md-3 col-xl-2 turns">
-              <label class="control-label" for="turns" data-translate="turns-round">Beurten/ronde</label>
+              <label class="control-label" for="turns" data-translate="turns-round">Beurten/ronde</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Hoeveel beurten voordat schutters wisselen?" data-translate-title="turns-per-round-i">&#8505;</span>
               <div class="">
                 <input id="turns" name="turns" type="number" min="1" max="30" step="1" placeholder="Beurten" data-translate-placeholder="turns" class="form-control input-md" required="">
               </div>
             </div>
 
             <!-- Text input-->
-            <div class="form-group col-sm-6 col-md-3 col-xl-1 minmax">
-              <label class="control-label" for="score_min" data-translate="min-score">Min Score</label>
+            <div class="form-group col-sm-6 col-md-3 col-xl-1 rounds">
+              <label class="control-label" for="rounds" data-translate="rounds">Rondes</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Gebruik 0 rondes om een competitie te doen." data-translate-title="rounds-0">&#8505;</span>
+              <div class="">
+                <input id="rounds" name="rounds" type="number" min="0" max="10" step="1" value="2" class="form-control input-md" required="">
+              </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group col-sm-6 col-md-3 col-xl-2 minmax">
+              <label class="control-label" for="score_min" data-translate="min-score">Min Score</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Minimum punten die per pijl geschoten kunnen worden" data-translate-title="min-score-i">&#8505;</span>
               <div class="">
                 <input id="score_min" name="score_min" type="number" min="1" max="10" step="1" placeholder="1" class="form-control input-md" required="">
               </div>
             </div>
 
             <!-- Text input-->
-            <div class="form-group col-sm-6 col-md-3 col-xl-1 minmax">
-              <label class="control-label" for="score_max" data-translate="max-score">Max Score</label>
+            <div class="form-group col-sm-6 col-md-3 col-xl-2 minmax">
+              <label class="control-label" for="score_max" data-translate="max-score">Max Score</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Maximum punten die per pijl geschoten kunnen worden" data-translate-title="max-score-i">&#8505;</span>
               <div class="">
                 <input id="score_max" name="score_max" type="number" min="10" max="100" step="1" placeholder="10" class="form-control input-md" required="">
               </div>
@@ -79,14 +92,14 @@
           </div>
           <div class="row">
             <div class="form-group col-sm-12 col-md-4 col-xl-4">
-              <label class="control-label" for="group" data-translate="group">Groep</label>
+              <label class="control-label" for="group" data-translate="group">Groep</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Selecteer een groep, of vul de naam in voor een nieuwe groep" data-translate-title="group-i">&#8505;</span>
               <div class="">
                 <input id="group" name="group" list="groups" class="form-select" onchange="getGuests(this)" required="">
                 <datalist id="groups"></datalist>
               </div>
             </div>
             <div class="form-group col-sm-12 col-md-8 col-xl-8">
-              <label class="control-label" for="first_name" data-translate="add-player">Speler toevoegen</label>
+              <label class="control-label" for="first_name" data-translate="add-player">Nieuwe Schutter</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Vul de voornaam in. Achternaam is niet verplicht." data-translate-title="add-player-i">&#8505;</span>
               <div class="input-group">
                 <input id="first_name" class="form-control" placeholder="Voornaam" data-translate-placeholder="firstname" disabled="" />
                 <input id="last_name" class="form-control" placeholder="Achternaam" data-translate-placeholder="lastname" disabled="" />
@@ -118,6 +131,7 @@
         ipc.on("gotLanguage", (event, lang) => {
           setTimeout(function() {
             changeLanguage(lang);
+            $(function(){ $('[data-toggle="tooltip"]').tooltip() }) // ENABLE TOOLTIP FUNCTION (after translation is set)
           }, 5);
         });
 
@@ -160,6 +174,8 @@
             if (!form.checkValidity()) {
               form.reportValidity();
             } else {
+              // Start loading animation
+              document.querySelector("#submitForm").innerHTML = '<span class="spinner-border spinner-border" role="status" aria-hidden="true"></span> &nbsp;' + getTranslation("loading");
               setTimeout(sendForm, delay);
             }
           },
@@ -170,10 +186,14 @@
           //console.log(serialize(formData));
           ipc.send('setCompetition', serialize(formData));
         }
+        // Stop loading animation
+        ipc.on('gotPlayers', function(event) {
+          document.querySelector("#submitForm").innerHTML = '<b>' + getTranslation("next") + '</b>';
+        });
 
         ipc.send('getAllFrom', 'settings');
         ipc.on('gotAllFrom_settings', function(event, settings) {
-          sets = ['teams','arrows','turns','score_min', 'score_max'];
+          sets = ['teams','arrows','turns','rounds','score_min','score_max'];
           settings.forEach(setting => {
             if (sets.indexOf(setting.setting) != -1) {
               //console.log(setting.setting + ' - ' + setting.value);

@@ -260,8 +260,6 @@
     </div>
     <script src="app.js"></script>
     <script>
-$(function(){ $('[data-toggle="tooltip"]').tooltip() }) // ENABLE TOOLTIP FUNCTION
-
 // SORT TEAMS
 $(".dropzone-teams").sortable({
   axis: 'y',
@@ -325,6 +323,7 @@ function shuffleArray(array) {
         ipc.on("gotLanguage", (event, lang) => {
           setTimeout(function() {
             changeLanguage(lang);
+            $(function(){ $('[data-toggle="tooltip"]').tooltip() }) // ENABLE TOOLTIP FUNCTION (after translation is set)
           }, 5);
         });
 

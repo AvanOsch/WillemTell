@@ -27,9 +27,10 @@ if (env.name !== "production") {
 }
 
 let base = app.getAppPath().replace('\app.asar', '');
-const dbfile = path.resolve(base, 'WillemTell.db');
+//const dbfile = path.resolve(base, 'WillemTell.db');
+const dbfile = path.join(app.getPath("userData"), 'WillemTell.db');
 
-//console.log(dbfile);
+console.log(dbfile);
 //let dbfile = path.join(app.getPath("userData"), "database.db");
 const db = new Database(dbfile, { verbose: console.log });
 
@@ -119,6 +120,7 @@ app.on("ready", () => {
       width: 1000,
       height: 600,
       show: false,
+      maximize: true,
       backgroundColor: '#5f7400',
       webPreferences: {
         // Two properties below are here for demo purposes, and are
@@ -233,7 +235,8 @@ ipcMain.on("getActivePlayers", async (event, arg) => {
     });
     var data = await knex.first('name').from('competition').where({id: competition_id});
     var competition = data.name;
-
+    var rounds = await knex.first('value').from('settings').where('setting', 'cur_rounds');
+  
     dialog.showMessageBox(childWindow, {
       type: 'question',
       title: lang.backupFound,
@@ -246,6 +249,8 @@ ipcMain.on("getActivePlayers", async (event, arg) => {
       if (result.response === 0) {
         //console.log('The "Yes" button was pressed');
         var urlpage = (competition_id == 1) ? "guests.html" : "competition.html";
+        if (rounds.value <= 0 && competition_id == 1) urlpage = "guests_match.html";
+        else if (competition_id == 2) urlpage = "competition_king.html";
         mainWindow.loadURL(
           url.format({
             pathname: path.join(__dirname, urlpage),
@@ -617,6 +622,10 @@ ipcMain.on("setCompetition", async (event, formData) => {
         const query = knex('settings').where('setting', 'cur_' + setting).update('value',formData[setting]).transacting(trx); // This makes every update be in the same transaction
         queries.push(query);
       });
+      // Round are only for Guest archers and Kings quest
+      if (formData['rounds'] != undefined) {
+        queries.push(knex('settings').where('setting', 'cur_rounds').update('value',formData['rounds']).transacting(trx));
+      }
       Promise.all(queries) // Once every query is written
           .then(trx.commit) // We try to execute all of them
           .catch(trx.rollback); // And rollback in case any of them goes wrong
@@ -630,6 +639,7 @@ ipcMain.on("setCompetition", async (event, formData) => {
         formData.players = await getAverage(pdata);
       }
       childWindow.once("ready-to-show", () => {
+        event.reply("gotPlayers");
         childWindow.webContents.send("gotPlayers", formData);
       });
       //console.log(formData);
@@ -638,7 +648,7 @@ ipcMain.on("setCompetition", async (event, formData) => {
 });
 
 ipcMain.on("goCompetition", async (event, players) => {
-  var setting = await knex.first('value').from('settings').where('setting', 'cur_competition').catch(function(error) {
+  var competition = await knex.first('value').from('settings').where('setting', 'cur_competition').catch(function(error) {
     dialog.showMessageBox(childWindow, {
       type: 'error',
       title: lang.error,
@@ -646,9 +656,20 @@ ipcMain.on("goCompetition", async (event, players) => {
       detail: lang.errorGettingFromDBLong + error.message
     }).then(data => {console.log(data)});
   });
+  var rounds = await knex.first('value').from('settings').where('setting', 'cur_rounds').catch(function(error) {
+    dialog.showMessageBox(childWindow, {
+      type: 'error',
+      title: lang.error,
+      message: lang.errorGettingFromDB.replace("%s", lang.rounds),
+      detail: lang.errorGettingFromDBLong + error.message
+    }).then(data => {console.log(data)});
+  });
+  var urlpage = (competition.value == 1) ? "guests.html" : "competition.html";
+  if (rounds.value <= 0 && competition.value == 1) urlpage = "guests_match.html";
+  else if (competition.value == 2) urlpage = "competition_king.html";
   mainWindow.loadURL(
     url.format({
-      pathname: path.join(__dirname, (setting.value == 1 ? "guests.html" : "competition.html")),
+      pathname: path.join(__dirname, urlpage),
       protocol: "file:",
       slashes: true
     })
@@ -675,7 +696,7 @@ ipcMain.on("goCompetition", async (event, players) => {
 });
 
 ipcMain.on("getGame", async (event) => {
-  var settings = await knex.select('*').from('settings').whereIn('setting', ['cur_team_type', 'cur_teams', 'cur_arrows', 'cur_turns', 'cur_score_min', 'cur_score_max', 'cur_competition', 'cur_count_average', 'cur_date', 'cur_players', 'average_multiplier']).catch(function(error) {
+  var settings = await knex.select('*').from('settings').whereIn('setting', ['cur_team_type', 'cur_teams', 'cur_arrows', 'cur_turns', 'cur_rounds', 'cur_score_min', 'cur_score_max', 'cur_competition', 'cur_count_average', 'cur_date', 'cur_players', 'average_multiplier']).catch(function(error) {
     dialog.showMessageBox(mainWindow, {
       type: 'error',
       title: lang.error,

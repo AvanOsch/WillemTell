@@ -57,6 +57,16 @@
             font-size: 0.7rem;
             line-height: 0.7rem;
         }
+        .total-table {
+            border-color:white;
+            width: -webkit-fill-available;
+        }
+        .total-table td {
+            padding: 0.5px;
+            border-width: 1px;
+            min-width:22px;
+            text-align:center;
+        }
     </style>
   </head>
   <body style="overflow-y: auto;">
@@ -105,12 +115,7 @@
 
             return mydate.toLocaleDateString('nl-NL', options);
         }
-/*
-FOREACH TEAMS => Round (1, 2)
-FOREACH TEAMS => Round (1-2, 1-3, 2-3)
-FOREACH TEAMS => Round (1-2-3, 1-2-4, 2-3-4, 1,3,4)
-FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
-*/
+
         var current_input;
         function selectInput(el) {
             $('.form-control').removeClass('selected-input');
@@ -122,10 +127,12 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
         var maxpoints = 10;
         var total_arrows = 0;
         var turn_arrows = 0;
+        var rounds = 1;
+        var current_round = 1;
         var arrow_pos = 1;
         var prev_arrow = 0;
         function goToNextInput() {
-            var rows = current_input.closest('.accordion-body').find('tr[data-id]');
+            var rows = current_input.closest('.score-table').find('tr[data-id]');
             var current_row = rows.index(current_input.parents('tbody').find('tr[data-id]'));
             var current_id = parseInt(current_input.data('col'));
             //var arrow_pos = current_id - (current_id % turn_arrows) + 1;
@@ -151,9 +158,11 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
                 arrow_pos = 1;
             }
             // Check if all fields have been filled
-            if (current_input.closest('.accordion-body').find('input').not(':disabled').filter(function() { return $(this).val() == ""; }).length < 1) {
-                //alert('Round finished?');
-                checkWinners(current_input);
+            if (current_input.closest('.score-table').find('.score-input').filter(function() { return $(this).val() == ""; }).length < 1) {
+                current_round++;
+                rows = current_input.closest('.accordion-body').find('tr[data-id]');
+                current_row = rows.index(current_input.parents('tbody').find('tr[data-id]')) + 1;
+                current_id = arrow_pos;
             }
             // Save Temporary Data
             saveTemp(current_input);
@@ -174,65 +183,61 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
         // Reset next arrow position after clicking on an input field.
         function resetInput(el) {
             var current_id = parseInt(el.data('col'));
-            arrow_pos = current_id - (current_id % turn_arrows);
+            arrow_pos = current_id;// - (current_id % turn_arrows);
             selectInput(el);
         }
+
         function calcTotal(el) {
             var total = 0;
-            el.parents('tbody').find('input').not(':disabled').each(function() {
+            var sid = el.data('sid');
+            el.parents('tbody').find('[data-sid="' + sid + '"]').each(function() {
                 let value = $(this).val();
                 if (value != "") total += parseInt(value);
+                let this_round = parseInt(el.parents('.accordion-collapse').attr('id').substr(9));
+                let arnum = parseInt($(this).data('col')) + (total_arrows * (this_round - 1));
+                $('#collapse_x').find('[data-ptid="' + sid + '"]').find('td.arrow_' + arnum).html(value);
+                var ttotal = 0;
+                $('#collapse_x').find('[data-ptid="' + sid + '"]').find('.arrows').each(function() {
+                let tvalue = $(this).html();
+                if (tvalue != "") ttotal += parseInt(tvalue);
+                });
+                $('#total_' + sid).html(ttotal);
             });
             el.parents('tbody').find('input:disabled').val(total);
+
+            // Check if all fields have been filled
+            if ($('#roundsAccordion').find('.score-input').filter(function() { return $(this).val() == ""; }).length < 1) {
+                alert(getTranslation("round-finished"));
+                checkWinners();
+            } else if (el.parents('.score-table').find('.score-input').filter(function() { return $(this).val() == ""; }).length < 1) {
+                alert(getTranslation("round-finish"));
+            }
         }
-        function checkWinners(elm) {
-            let team_score = [];
-            elm.parents('.accordion-collapse').find('.score-table').each(function (index, el) {
-                team_score[index] = {
-                    'id': $(el).data('id'),
-                    'average': $(el).find('.team_average').data('average'),
-                    'pts_input': $(el).find('.team_average'),
-                    'now': 0,
-                    'diff': 0,
-                    'total': 0,
-                    'players': 0
-                };
-                $(el).find('input:disabled').each(function() {
-                    team_score[index].players++;
-                    team_score[index].total += parseInt($(this).val());
-                });
-                /*console.log($(this));
-                console.log('team-score-total: ' + team_score[index].total);
-                console.log('team-score-players: ' + team_score[index].players);*/
-                team_score[index].now = (team_score[index].total / team_score[index].players) / maxpoints;
-                team_score[index].diff = (team_score[index].now - team_score[index].average).toFixed(3);
+
+        function checkWinners() {
+            var totaltable = $(".total-table");
+            var players = [];
+            totaltable.find('.arrows_total').each(function() {
+                let pid = $(this).parents('tr').data('ptid');
+                players.push([pid, parseInt($(this).html())]);
             });
-            team_score.forEach(team => {
-                team_table = elm.parents('.accordion-collapse').find('.score-table[data-id="' + team.id + '"]');
-                let arrow = team.diff > 0 ? '⬆ ' : (team.diff < 0 ? '⬇ ' : '↕ ');
-                team_table.find('.team_average').html('(<span title="' + getTranslation("average-team") + '">' + team.average + '</span> | <span title="' + getTranslation("average-team-got") + '">' + team.now.toFixed(3) + '</span> | ' + arrow + team.diff + ')');
-                team_score.forEach(enemy => {
-                    if (team.id != enemy.id) {
-                        if (team.diff >= 0 && team.diff > enemy.diff) {
-                            // Winner
-                            team_table.find('.player-name').css('background-color', '#9cff7b');
-                            team.pts_input.attr('data-points', 2);
-                        } else if (team.diff >= 0 && team.diff == enemy.diff) {
-                            // SAME!!!
-                            team_table.find('.player-name').css('background-color', '##9accff');
-                            team.pts_input.attr('data-points', 1);
-                        } else {
-                            // Loser
-                            team_table.find('.player-name').css('background-color', '#ffb6b6');
-                            team.pts_input.attr('data-points', 0);
-                        }
-                    }
-                });
-                // Update temporary score database with points...
-                ipc.send('saveTempPoints', {'team_id': team.id.substr(5), 'round': team_table.parents('.accordion-item').find('.accordion-header').attr('id').substr(6), 'points': team.pts_input.attr('data-points') });
+            // Sort by highest scores
+            players.sort(function(a, b) {
+                return b[1] - a[1];
+            });
+            let points = 1;
+            let prev = 0;
+            players.forEach(function(item, index) {
+                if (item[1] < prev) points = index + 1;
+                prev = item[1];
+                if (!isNaN(prev)) ipc.send('saveTempPoint', {'player_id': item[0], 'round': 1, 'points': points });
+                p_row = totaltable.find('[data-ptid="' + item[0] + '"]');
+                p_row.find('.position').html(points + ' - ');
+                p_row.appendTo(totaltable);
             });
             //console.log(team_score);
         }
+
         let finished = "Klaar!";
         $('.btn-save').click(function() {
             if ($('.btn-save').html() == finished) {
@@ -302,10 +307,29 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
             selectInput($('.collapse.show').find('input').not(':disabled').filter(function() { return $(this).val() == ""; }).first());
         });
 
+        function createAccordion(num) {
+          $('#copygroup .accordion-header').attr('id', 'round_' + num);
+          $('#copygroup .accordion-button').attr({'data-bs-target': '#collapse_' + num, 'aria-controls': 'collapse_' + num});
+          $('#copygroup .accordion-collapse').attr({'id': 'collapse_' + num, 'aria-labelledby': 'round_' + num});
+          if (num !== 1) {
+            $('#copygroup .accordion-button').attr('aria-expanded', 'false');
+            $('#copygroup .accordion-button').addClass('collapsed');
+            $('#copygroup .accordion-collapse').removeClass('show');
+          } else {
+            $('#copygroup .accordion-button').attr('aria-expanded', 'true');
+            $('#copygroup .accordion-button').removeClass('collapsed');
+            $('#copygroup .accordion-collapse').addClass('show');
+          }
+          if (num !== 'x') $('#copygroup .accordion-button').html(getTranslation("round") + ' ' + num);
+          else $('#copygroup .accordion-button').html(getTranslation("total"));
+          $("#roundsAccordion").append($('#copygroup').html());
+        }
+
         ipc.send('getGame');
         ipc.on('gotGame', function(event, settings) {
             //console.log(settings);
             turn_arrows = parseInt(settings.cur_arrows);
+            rounds = parseInt(settings.cur_rounds);
             minpoints = parseInt(settings.cur_score_min);
             maxpoints = parseInt(settings.cur_score_max);
             for (let p = minpoints; p <= maxpoints; p++) $('#points-buttons').prepend('<button class="btn btn-success btn-points">' + p + '</button>');
@@ -323,9 +347,19 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
             $('#arrows').html(turn_arrows + ' ' + (turn_arrows == 1 ? getTranslation("arrow") : getTranslation("arrows")) + ' ' + getTranslation("per-turn"));
             $('#count_average').data('id', settings.cur_count_average);
             total_arrows = parseInt(turn_arrows) * parseInt(settings.cur_turns);
-            var table = '<tr>';
             var scores = '<table class="score-table" cellspacing="0" border="0"><tr>';
+            var table = '<tr>';
+            // For totals accordion
+            var totals = '<table class="total-table" cellspacing="0" border="0"><tr><td style="border-width:0px;"></td>';
+            var total = '<tr>';
+            var arnum = 0;
             for (let j = 1; j <= total_arrows; j++) {
+                // For totals accordion
+                for (let k = 1; k <= rounds; k++) {
+                    arnum++;
+                    totals += '<td>' + arnum + '</td>';
+                    total += '<td class="arrow_' + arnum + ' arrows"></td>';
+                }
                 if (j > 1 && j % 10 == 1) table += '</tr><tr>';
                 table += '<td><input type="text" aria-label="Pijl ' + j + '" data-col="' + j + '" class="form-control score-input" onclick="resetInput($(this))" style="min-width: 45px;border-radius:0;"></td>';
                 if (j <= 10) scores += '<td style="text-align:center; min-width: 45px;">' + j + '</td>';
@@ -336,6 +370,10 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
             }
             table += '</tr>';
             scores += '<td style="min-width: 60px;">&nbsp;</td></tr></table>';
+            // For totals accordion
+            total += '</tr>';
+            totals += '<td>' + getTranslation("total") + '</td></tr></table>';
+            totals = $(totals);
             var teams = [];
             var team_average = [];
             var groups = JSON.parse(settings.cur_players);
@@ -344,20 +382,6 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
             var avg_calc = parseFloat(settings.average_multiplier);
             groups.forEach(team => {
                 teamnum++;
-                $('#copygroup .accordion-header').attr('id', 'round_' + teamnum);
-                $('#copygroup .accordion-button').attr({'data-bs-target': '#collapse_' + teamnum, 'aria-controls': 'collapse_' + teamnum});
-                $('#copygroup .accordion-collapse').attr({'id': 'collapse_' + teamnum, 'aria-labelledby': 'round_' + teamnum});
-                if (teamnum !== 1) {
-                    $('#copygroup .accordion-button').attr('aria-expanded', 'false');
-                    $('#copygroup .accordion-button').addClass('collapsed');
-                    $('#copygroup .accordion-collapse').removeClass('show');
-                } else {
-                    $('#copygroup .accordion-button').attr('aria-expanded', 'true');
-                    $('#copygroup .accordion-button').removeClass('collapsed');
-                    $('#copygroup .accordion-collapse').addClass('show');
-                }
-                $('#copygroup .accordion-button').html(getTranslation("round") + ' ' + teamnum);
-                $("#roundsAccordion").append($('#copygroup').html());
                 teams[teamnum] = $(scores).clone(true);
                 teams[teamnum].attr('data-id', 'team_' + teamnum);
                 teams[teamnum].find('tr').prepend('<td class="col-3">' + getTranslation("team") + ' ' + teamnum + ' &nbsp; <span class="team_average" data-average="0" data-points="0">(TEAM AVERAGE)</span></td>');
@@ -383,37 +407,36 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
                     wrap.append(clone);
                     teams[teamnum].append(wrap);
                     team_average[teamnum] += parseFloat(average);
+                    // For totals accordion
+                    var tclone = $(total).clone(true);
+                    tclone.first().attr('data-ptid', player.id);
+                    tclone.first().prepend('<td class="col-3" style="border-width:0px;"><div class="player-name" style="padding: 0.75rem"><span class="position"></span>' + player.first_name + ' ' + player.last_name + '</div></td>');
+                    tclone.first().append('<td id="total_' + player.id + '" class="arrows_total" style="color:var(--bs-body-color); background-color:var(--bs-tertiary-bg);"></td>');
+                    totals.append(tclone);
                 });
                 team_average[teamnum] = (team_average[teamnum] / team.length).toFixed(3);
                 teams[teamnum].find('.team_average').html('(' + team_average[teamnum] + ')').attr('data-average', team_average[teamnum]);
             });
+            // Create one accordion (round) per round
+            for (let round = 1; round <= rounds; round++) createAccordion(round);
+            createAccordion('x');
+            totals.appendTo('#collapse_x > .accordion-body');
+            $('#round_x').click(function() {
+              checkWinners();
+            });
+
             $('#copygroup').remove();
             $(".acc-wrapper").append('<div class="col-2"><button class="btn btn-success btn-back">' + getTranslation("back") + '</button></div>');
             $('.btn-back').click(function() {
                 ipc.send('gotoPage', 'competition_setup.html');
             });
-            // (for now?) Create a round per team:
-            /*   1-2   1-2   1-2-3   1-2-3-4
-            **   1-2   1-3   1-2-4   1-2-3-5
-            **         2-3   1-3-4   1-2-4-5
-            **               2-3-4   1-3-4-5
-            **                       2-3-4-5  */
-            var round = 1;
-            for (let i = 1; i <= teamnum; i++) {
-                if (teamnum == 1) {
-                    teams[i].appendTo('#collapse_' + round + ' > .accordion-body');
-                } else if (teamnum == 2) {
-                    teams[i].clone().appendTo('#collapse_' + i + ' > .accordion-body');
-                    if (i == 1) teams[i].appendTo('#collapse_2 > .accordion-body');
-                    else teams[i].appendTo('#collapse_1 > .accordion-body');
-                } else {
-                    // Each team doesn't play 1 round
-                    for (let j = 1; j < teamnum; j++) {
-                        if (round > teamnum) round = 1;
-                        teams[i].clone().appendTo('#collapse_' + round + ' > .accordion-body');
-                        round++;
-                    }
-                }
+
+            // Play with groups for a number of rounds
+            for (let round = 1; round <= rounds; round++) {
+              for (let i = 1; i <= teamnum; i++) {
+                if (round == rounds) teams[i].appendTo('#collapse_' + round + ' > .accordion-body');
+                else  teams[i].clone().appendTo('#collapse_' + round + ' > .accordion-body');
+              }
             }
             // Fill in previous scores (if found)
             if (settings.players[0].scores !== undefined) {
@@ -439,7 +462,7 @@ FOREACH TEAMS => Round (1-2-3-4, 1-2-3-5, 1-2-4-5, 2-3-4-5, 1-3-4-5)
                     calcTotal(el);
                     // Check if all fields have been filled
                     if (el.closest('.accordion-body').find('input').not(':disabled').filter(function() { return $(this).val() == ""; }).length < 1) {
-                        checkWinners(el);
+                        checkWinners();
                     }
                 });
             }

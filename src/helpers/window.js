@@ -78,6 +78,7 @@ export default (name, options) => {
 
   win = new BrowserWindow(Object.assign({}, options, state));
   win.once('ready-to-show', () => {
+    if (options.maximize) win.maximize();
     win.show();
   });
   

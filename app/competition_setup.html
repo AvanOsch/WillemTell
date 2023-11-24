@@ -6,11 +6,16 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
     
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}
+    </script>
     <!-- Bootstrap Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="./assets/js/jquery-3.6.4.min.js"></script>
+    <script src="./assets/js/jquery-ui.min.js"></script>
     <script src="./assets/js/popper.min.js"></script>
     <script src="./assets/js/bootstrap.min.js"></script>
     <script src="./assets/js/translate.js"></script>
+    <script>if (window.module) module = window.module;</script>
   </head>
   <style>
     .btn-next, .btn-back {
@@ -26,22 +31,22 @@
     }
   </style>
   <body style="overflow-y: auto;">
-    <div id="app" style="display: none; margin:20px;"><div class="show-settings" onclick="showhide()" title="Instellingen" data-translate-title="settings">👁</div>
+    <div id="app" style="display: none; margin:20px;"><div class="show-settings" onclick="showhide()" data-toggle="tooltip" data-placement="left" title="Instellingen" data-translate-title="settings">👁</div>
         <form class="form-horizontal">
             <fieldset>
             
             <!-- Form Name -->
             <legend><span data-translate="competition-setup">Competitie schieten</span> &nbsp; <span id="competition_name" style="font-size: 16px;"></span></legend>
-            
+
             <!-- Text input-->
             <div class="row">
             <div class="form-group col-sm-12 col-md-4 col-xl-2">
-              <label class="control-label" for="date" data-translate="date">Datum</label>  
+              <label class="control-label" for="date" data-translate="date">Datum</label>
               <div class="">
                 <input id="date" name="date" type="date" class="form-control input-md" required="">
               </div>
             </div>
-            
+
             <!-- Multiple Checkboxes -->
             <div class="form-group col-sm-6 col-md-4 col-xl-2 competition" style="display:none">
                 <label class="control-label" for="competition" data-translate="competition">Competitie</label>
@@ -52,7 +57,7 @@
               
               <!-- Multiple Checkboxes -->
               <div class="form-group col-sm-6 col-md-4 col-xl-2 count_average" style="display:none">
-                <label class="control-label" for="count_average" data-translate="count-average">Gemiddelde tellen</label>
+                <label class="control-label" for="count_average" data-translate="count-average">Gemiddelde tellen</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Scores mee laten tellen voor het berekenen van gemiddeldes?" data-translate-title="count-average-i">&#8505;</span>
                 <div class="">
                     <label class="radio-inline" for="count_average-1">
                         <input type="radio" name="count_average" id="count_average-1" value="1" checked="checked">
@@ -67,7 +72,7 @@
               
             <!-- Text input-->
             <div class="form-group col-sm-6 col-md-3 col-xl-1 teams" style="display:none">
-              <label class="control-label" for="teams" data-translate="teams">Teams</label>  
+              <label class="control-label" for="teams" data-translate="teams">Teams</label>
               <div class="">
                 <input id="teams" name="teams" type="number" min="1" max="5" step="1" placeholder="Teams" data-translate-placeholder="teams" class="form-control input-md" required="">
               </div>
@@ -75,7 +80,7 @@
             
             <!-- Multiple Radios (inline) -->
             <div class="form-group col-sm-6 col-md-3 col-xl-2 team_type" style="display:none">
-              <label class="control-label" for="team_type" data-translate="team-type">Team Soort</label>
+              <label class="control-label" for="team_type" data-translate="team-type">Team Soort</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Vaste teams gebruiken?" data-translate-title="team-type-i">&#8505;</span>
               <div class="">
                 <select id="team_type" name="team_type" class="form-select">
                   <option value="random" data-translate="random">Random</option>
@@ -85,8 +90,8 @@
             </div>
             
             <!-- Text input-->
-            <div class="form-group col-sm-6 col-md-3 col-xl-1 arrows" style="display:none">
-              <label class="control-label" for="arrows" data-translate="arrows-turn">Pijlen/beurt</label>
+            <div class="form-group col-sm-6 col-md-3 col-xl-2 arrows" style="display:none">
+              <label class="control-label" for="arrows" data-translate="arrows-turn">Pijlen/beurt</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Aantal Pijlen voordat ze weer gehaald worden" data-translate-title="arrows-per-turn-i">&#8505;</span>
               <div class="">
                 <input id="arrows" name="arrows" type="number" min="1" max="10" step="1" placeholder="Pijlen" data-translate-placeholder="arrows" class="form-control input-md" required="">
               </div>
@@ -94,30 +99,38 @@
             
             <!-- Text input-->
             <div class="form-group col-sm-6 col-md-3 col-xl-2 turns" style="display:none">
-              <label class="control-label" for="turns" data-translate="turns-round">Beurten/ronde</label>
+              <label class="control-label" for="turns" data-translate="turns-round">Beurten/ronde</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Hoeveel beurten voordat schutters wisselen?" data-translate-title="turns-per-round-i">&#8505;</span>
               <div class="">
                 <input id="turns" name="turns" type="number" min="1" max="30" step="1" placeholder="Beurten" data-translate-placeholder="turns" class="form-control input-md" required="">
               </div>
             </div>
             
             <!-- Text input-->
-            <div class="form-group col-sm-6 col-md-3 col-xl-1 minmax" style="display:none">
-              <label class="control-label" for="score_min" data-translate="min-score">Min Score</label>
+            <div class="form-group col-sm-6 col-md-3 col-xl-1 rounds" style="display:none">
+              <label class="control-label" for="rounds" data-translate="rounds">Rondes</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Rondes gelden alleen voor Koningsschieten." data-translate-title="rounds-k">&#8505;</span>
+              <div class="">
+                <input id="rounds" name="rounds" type="number" min="1" max="10" step="1" value="1" class="form-control input-md" required="">
+              </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group col-sm-6 col-md-3 col-xl-2 minmax" style="display:none">
+              <label class="control-label" for="score_min" data-translate="min-score">Min Score</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Minimum punten die per pijl geschoten kunnen worden" data-translate-title="min-score-i">&#8505;</span>
               <div class="">
                 <input id="score_min" name="score_min" type="number" min="1" max="10" step="1" placeholder="1" class="form-control input-md" required="">
               </div>
             </div>
             
             <!-- Text input-->
-            <div class="form-group col-sm-6 col-md-3 col-xl-1 minmax" style="display:none">
-              <label class="control-label" for="score_max" data-translate="max-score">Max Score</label>
+            <div class="form-group col-sm-6 col-md-3 col-xl-2 minmax" style="display:none">
+              <label class="control-label" for="score_max" data-translate="max-score">Max Score</label> <span data-toggle="tooltip" style="cursor:help; user-select: none;" title="Maximum punten die per pijl geschoten kunnen worden" data-translate-title="max-score-i">&#8505;</span>
               <div class="">
                 <input id="score_max" name="score_max" type="number" min="10" max="100" step="1" placeholder="10" class="form-control input-md" required="">
               </div>
             </div>
             </div>
             <div class="row" style="margin-top:20px;">
-                <label class="control-label" for="players"><span data-translate="players-today">Wie spelen er vandaag mee?</span> &nbsp; <span style="cursor:pointer; user-select: none;" onclick="checkall()" title="Selecteer alles" data-translate-title="check-all">✅</span></label>
+                <label class="control-label" for="players"><span data-translate="players-today">Wie spelen er vandaag mee?</span> &nbsp; <span style="cursor:pointer; user-select: none;" onclick="checkall()" data-toggle="tooltip" data-placement="left" title="Selecteer alles" data-translate-title="check-all">✅</span></label>
                 <div id="players"></div>
             </div>
             <div class="row" style="margin-top: 24px;">
@@ -137,6 +150,7 @@
       ipc.on("gotLanguage", (event, lang) => {
         setTimeout(function() {
           changeLanguage(lang);
+          $(function(){ $('[data-toggle="tooltip"]').tooltip() }) // ENABLE TOOLTIP FUNCTION (after translation is set)
         }, 5);
       });
 
@@ -174,6 +188,7 @@
           if (!form.checkValidity()) {
             form.reportValidity();
           } else {
+            document.querySelector("#submitForm").innerHTML = '<span class="spinner-border spinner-border" role="status" aria-hidden="true"></span> &nbsp;' + getTranslation("loading");
             let formData = new FormData(form);
             //console.log(serialize(formData));
             ipc.send('setCompetition', serialize(formData));
@@ -181,6 +196,9 @@
         },
         false
       );
+      ipc.on('gotPlayers', function(event) {
+        document.querySelector("#submitForm").innerHTML = '<b>' + getTranslation("next") + '</b>';
+      });
 
       function showhide() {
         hidden.forEach(function(v) {
@@ -215,6 +233,9 @@
           event.preventDefault();
           let cmp = document.querySelector("#competition");
           document.querySelector("#competition_name").innerHTML = '(' + cmp.options[cmp.selectedIndex].text + ')';
+          console.log(cmp.options[cmp.selectedIndex].value);
+          if (cmp.options[cmp.selectedIndex].value == 2) document.querySelector(".rounds").style.display = "block";
+          else document.querySelector(".rounds").style.display = "none";
         },
         false
       );
@@ -223,7 +244,7 @@
       var hide; // Holds settings that should be hidden
       ipc.send('getAllFrom', 'settings');
       ipc.on('gotAllFrom_settings', function(event, settings) {
-        sets = ['competition', 'team_type', 'teams', 'arrows', 'turns', 'score_min', 'score_max'];
+        sets = ['competition', 'team_type', 'teams', 'arrows', 'turns', 'rounds', 'score_min', 'score_max'];
         settings.forEach(setting => {
           if (sets.indexOf(setting.setting) != -1) {
             //console.log(setting.setting + ' - ' + setting.value);
